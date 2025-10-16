@@ -5,8 +5,8 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import Dock from '@/components/Dock';
 import RotatingText from '@/components/RotatingText';
 import { Home, Coins, Trophy, Settings, Wallet, Timer } from 'lucide-react';
-import { useState } from 'react';
-import { motion } from 'motion/react';
+import { useState, useRef } from 'react';
+import { motion, useInView } from 'motion/react';
 import PotCard from '@/components/PotCard';
 import DepositForm from '@/components/DepositForm';
 
@@ -18,6 +18,18 @@ const WalletMultiButton = dynamic(
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState<'home' | 'pots' | 'leaderboard' | 'wallet' | 'settings'>('home');
+  
+  // Refs for scroll animations
+  const statsRef = useRef(null);
+  const howItWorksRef = useRef(null);
+  const whyPlayRef = useRef(null);
+  const ctaRef = useRef(null);
+  
+  // InView hooks for scroll animations
+  const isStatsInView = useInView(statsRef, { once: true, amount: 0.3 });
+  const isHowItWorksInView = useInView(howItWorksRef, { once: true, amount: 0.2 });
+  const isWhyPlayInView = useInView(whyPlayRef, { once: true, amount: 0.3 });
+  const isCtaInView = useInView(ctaRef, { once: true, amount: 0.5 });
 
   const dockItems = [
     {
@@ -72,28 +84,31 @@ export default function HomePage() {
           {currentPage === 'home' && (
             <div className="max-w-7xl mx-auto">
               {/* Hero Section */}
-              <div className="text-center mb-20 mt-16">
+              <div className="text-center mb-20 mt-16 flex flex-col items-center justify-center min-h-[60vh]">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
+                  className="flex flex-col items-center justify-center"
                 >
-                  <h2 className="text-7xl font-bold text-white mb-4 tracking-tight">
+                  <h2 className="text-7xl font-bold text-white mb-6 tracking-tight">
                     SOLPOT
                   </h2>
-                  <div className="text-3xl font-bold mb-6">
-                    <RotatingText
-                      texts={[
-                        'Last Depositor Takes All 💰',
-                        'Win 90% of the Pot 🏆',
-                        'Time Your Move Perfectly ⏰',
-                        'Built on Solana 🚀'
-                      ]}
-                      rotationInterval={3000}
-                      staggerDuration={0.02}
-                      mainClassName="text-lime-400"
-                      transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-                    />
+                  <div className="text-3xl font-bold mb-8 w-full flex justify-center">
+                    <div className="inline-flex justify-center items-center min-h-[2.5rem]">
+                      <RotatingText
+                        texts={[
+                          'Last Depositor Takes All 💰',
+                          'Win 90% of the Pot 🏆',
+                          'Time Your Move Perfectly ⏰',
+                          'Built on Solana 🚀'
+                        ]}
+                        rotationInterval={3000}
+                        staggerDuration={0.02}
+                        mainClassName="text-lime-400 flex justify-center items-center text-center"
+                        transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+                      />
+                    </div>
                   </div>
                 </motion.div>
                 
@@ -120,40 +135,74 @@ export default function HomePage() {
 
               {/* Stats Row */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
+                ref={statsRef}
+                initial={{ opacity: 0, y: 50 }}
+                animate={isStatsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
                 className="grid grid-cols-3 gap-6 mb-20 max-w-4xl mx-auto"
               >
-                <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm">
+                <motion.div 
+                  initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                  animate={isStatsInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.9 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm hover:border-lime-500/40 transition-all duration-300"
+                >
                   <div className="text-4xl font-bold text-lime-400 mb-2">90%</div>
                   <div className="text-sm text-gray-400">Winner Takes</div>
-                </div>
-                <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm">
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                  animate={isStatsInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.9 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm hover:border-lime-500/40 transition-all duration-300"
+                >
                   <div className="text-4xl font-bold text-lime-400 mb-2">2 SOL</div>
                   <div className="text-sm text-gray-400">Pot Capacity</div>
-                </div>
-                <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm">
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                  animate={isStatsInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.9 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm hover:border-lime-500/40 transition-all duration-300"
+                >
                   <div className="text-4xl font-bold text-lime-400 mb-2">24h</div>
                   <div className="text-sm text-gray-400">Round Duration</div>
-                </div>
+                </motion.div>
               </motion.div>
 
               {/* How It Works */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
+                ref={howItWorksRef}
+                initial={{ opacity: 0, y: 50 }}
+                animate={isHowItWorksInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
                 className="mb-20"
               >
-                <h3 className="text-4xl font-bold text-white text-center mb-12">How It Works</h3>
+                <motion.h3 
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={isHowItWorksInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="text-4xl font-bold text-white text-center mb-12"
+                >
+                  How It Works
+                </motion.h3>
                 <div className="grid md:grid-cols-3 gap-8">
                   {/* Step 1 */}
-                  <div className="relative">
-                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -50, scale: 0.9 }}
+                    animate={isHowItWorksInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -50, scale: 0.9 }}
+                    transition={{ duration: 0.7, delay: 0.3 }}
+                    className="relative"
+                  >
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={isHowItWorksInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
+                      transition={{ duration: 0.5, delay: 0.5, type: "spring", stiffness: 200 }}
+                      className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl"
+                    >
                       1
-                    </div>
-                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full">
+                    </motion.div>
+                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full hover:border-lime-500/40 transition-all duration-300">
                       <Coins className="text-lime-400 mb-4" size={40} />
                       <h4 className="text-xl font-bold text-white mb-3">Connect & Deposit</h4>
                       <ul className="space-y-2 text-gray-300 text-sm">
@@ -171,14 +220,24 @@ export default function HomePage() {
                         </li>
                       </ul>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Step 2 */}
-                  <div className="relative">
-                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                    animate={isHowItWorksInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 50, scale: 0.9 }}
+                    transition={{ duration: 0.7, delay: 0.4 }}
+                    className="relative"
+                  >
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={isHowItWorksInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
+                      transition={{ duration: 0.5, delay: 0.6, type: "spring", stiffness: 200 }}
+                      className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl"
+                    >
                       2
-                    </div>
-                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full">
+                    </motion.div>
+                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full hover:border-lime-500/40 transition-all duration-300">
                       <Timer className="text-lime-400 mb-4" size={40} />
                       <h4 className="text-xl font-bold text-white mb-3">Time Your Move</h4>
                       <ul className="space-y-2 text-gray-300 text-sm">
@@ -196,14 +255,24 @@ export default function HomePage() {
                         </li>
                       </ul>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Step 3 */}
-                  <div className="relative">
-                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl">
+                  <motion.div 
+                    initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                    animate={isHowItWorksInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 50, scale: 0.9 }}
+                    transition={{ duration: 0.7, delay: 0.5 }}
+                    className="relative"
+                  >
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={isHowItWorksInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
+                      transition={{ duration: 0.5, delay: 0.7, type: "spring", stiffness: 200 }}
+                      className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl"
+                    >
                       3
-                    </div>
-                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full">
+                    </motion.div>
+                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full hover:border-lime-500/40 transition-all duration-300">
                       <Trophy className="text-lime-400 mb-4" size={40} />
                       <h4 className="text-xl font-bold text-white mb-3">Win The Pot</h4>
                       <ul className="space-y-2 text-gray-300 text-sm">
@@ -221,20 +290,33 @@ export default function HomePage() {
                         </li>
                       </ul>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </motion.div>
 
               {/* Why SolPot */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
+                ref={whyPlayRef}
+                initial={{ opacity: 0, y: 50 }}
+                animate={isWhyPlayInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
                 className="mb-16"
               >
-                <h3 className="text-4xl font-bold text-white text-center mb-12">Why Play SolPot?</h3>
+                <motion.h3 
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={isWhyPlayInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="text-4xl font-bold text-white text-center mb-12"
+                >
+                  Why Play SolPot?
+                </motion.h3>
                 <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-                  <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -30, scale: 0.95 }}
+                    animate={isWhyPlayInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -30, scale: 0.95 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm hover:border-lime-500/40 transition-all duration-300"
+                  >
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-400 flex items-center justify-center flex-shrink-0">
                         <span className="text-lime-400 text-xl">✓</span>
@@ -244,9 +326,14 @@ export default function HomePage() {
                         <p className="text-gray-400 text-sm">All transactions verified on Solana blockchain. No hidden mechanics.</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm">
+                  <motion.div 
+                    initial={{ opacity: 0, x: 30, scale: 0.95 }}
+                    animate={isWhyPlayInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 30, scale: 0.95 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm hover:border-lime-500/40 transition-all duration-300"
+                  >
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-400 flex items-center justify-center flex-shrink-0">
                         <span className="text-lime-400 text-xl">⚡</span>
@@ -256,9 +343,14 @@ export default function HomePage() {
                         <p className="text-gray-400 text-sm">Powered by Solana - instant deposits, near-zero fees.</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -30, scale: 0.95 }}
+                    animate={isWhyPlayInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -30, scale: 0.95 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                    className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm hover:border-lime-500/40 transition-all duration-300"
+                  >
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-400 flex items-center justify-center flex-shrink-0">
                         <span className="text-lime-400 text-xl">🔒</span>
@@ -268,9 +360,14 @@ export default function HomePage() {
                         <p className="text-gray-400 text-sm">Anyone can finalize. No central authority needed.</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm">
+                  <motion.div 
+                    initial={{ opacity: 0, x: 30, scale: 0.95 }}
+                    animate={isWhyPlayInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 30, scale: 0.95 }}
+                    transition={{ duration: 0.6, delay: 0.6 }}
+                    className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm hover:border-lime-500/40 transition-all duration-300"
+                  >
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-400 flex items-center justify-center flex-shrink-0">
                         <span className="text-lime-400 text-xl">💎</span>
