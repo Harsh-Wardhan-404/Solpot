@@ -1,0 +1,15 @@
+[workspace]
+members = [
+  "programs/universal_pot",
+]
+
+[workspace.package]
+edition = "2021"
+
+[workspace.metadata]
+resolver = "2"
+
+[profile.release]
+opt-level = "s"
+overflow-checks = true
+

@@ -1,0 +1,21 @@
+[features]
+seeds = true
+skip-lint = false
+
+[toolchain]
+anchor_version = "0.30.1"
+
+[programs.localnet]
+universal_pot = "GX8WLLD25Hi5QMpQKmSfM9WVqvusHQFcJPARdvTr3LG"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "Localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "anchor test"
+
+

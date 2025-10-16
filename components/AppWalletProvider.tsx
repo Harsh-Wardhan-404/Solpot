@@ -14,7 +14,7 @@ import { clusterApiUrl } from '@solana/web3.js';
 import { useMemo } from 'react';
 
 export default function AppWalletProvider({ children }: { children: React.ReactNode }) {
-  const network = WalletAdapterNetwork.Mainnet;
+  const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() =>
     process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(network),
     [network]
