@@ -85,11 +85,11 @@ export default function DepositForm() {
               <span className="text-lime-400">●</span>
               Minimum: 0.01 SOL
             </span>
-            {remaining > 0 && (
+            {/* {remaining > 0 && (
               <span className="text-lime-400 font-semibold">
                 {remaining.toFixed(4)} SOL remaining
               </span>
-            )}
+            )} */}
           </div>
         </div>
 

@@ -75,33 +75,21 @@ export default function PotCard() {
       </div>
 
       <div className="space-y-6">
-        {/* Progress Bar */}
-        <div>
-          <div className="flex justify-between text-sm text-gray-300 mb-2">
-            <span className="flex items-center gap-1">
-              <TrendingUp size={16} className="text-lime-400" />
-              {deposited.toFixed(2)} SOL deposited
-            </span>
-            <span>{capacity.toFixed(2)} SOL capacity</span>
+        {/* Mystery Pot block (capacity hidden) */}
+        <div className="space-y-4">
+          <div className="text-center">
+            <p className="text-sm text-purple-300 mb-1 font-semibold">Mystery Pot</p>
+            <p className="text-gray-300 text-sm">
+              Capacity is hidden for this round. Keep an eye on deposits and time left.
+            </p>
           </div>
-          <div className="w-full bg-gray-800/50 rounded-full h-4 border border-lime-500/30 overflow-hidden">
-            <div 
-              className="bg-gradient-to-r from-lime-600 via-lime-500 to-lime-400 h-4 rounded-full transition-all duration-500 shadow-lg shadow-lime-500/50"
-              style={{ width: `${progress * 100}%` }}
-            ></div>
-          </div>
-          <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-            {remaining > 0 ? (
-              <>
-                <span className="text-lime-400">●</span>
-                {remaining.toFixed(2)} SOL remaining
-              </>
-            ) : (
-              <>
-                <span className="text-lime-400">●</span>
-                Pot is full!
-              </>
-            )}
+
+          {/* Show total deposited only */}
+          <div className="text-center">
+            <p className="text-gray-300 text-sm mb-1">Total Deposited</p>
+            <p className="text-2xl font-mono text-white">
+              {(Number(pot.totalDeposited) / 1e9).toFixed(3)} SOL
+            </p>
           </div>
         </div>
 
@@ -176,10 +164,6 @@ export default function PotCard() {
           </div>
           <div className="space-y-2 text-xs">
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">Capacity:</span>
-              <span className="text-white font-semibold">{capacity.toFixed(2)} SOL</span>
-            </div>
-            <div className="flex justify-between items-center">
               <span className="text-gray-400">Min Deposit:</span>
               <span className="text-white font-semibold">0.01 SOL</span>
             </div>
@@ -208,3 +192,6 @@ export default function PotCard() {
     </div>
   );
 }
+
+
+// Replace the original capacity/progress UI with this:
