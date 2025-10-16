@@ -8,7 +8,7 @@ export default function PotCard() {
 
   if (!pot) {
     return (
-      <div className="glass-panel p-6 solana-glow">
+      <div className="glass-panel p-6 ">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lime-400 mx-auto mb-4"></div>
           <p className="text-gray-300">Loading pot data...</p>
@@ -63,7 +63,7 @@ export default function PotCard() {
   const rakeback = (totalVault * 0.05).toFixed(4);
 
   return (
-    <div className="glass-panel p-6 solana-glow">
+    <div className="glass-panel p-6 ">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-lime-400 flex items-center gap-2">
           <Trophy className="text-lime-400" size={28} />
@@ -133,7 +133,7 @@ export default function PotCard() {
 
         {/* Winner */}
         {pot.status === 2 && winnerAddress && winnerAddress !== "11111111111111111111111111111111" && (
-          <div className="text-center bg-lime-500/10 rounded-xl p-4 border-2 border-lime-500/50 solana-glow">
+          <div className="text-center bg-lime-500/10 rounded-xl p-4 border-2 border-lime-500/50 ">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Trophy className="text-lime-400" size={20} />
               <p className="text-lime-400 text-sm font-bold">🎉 Winner 🎉</p>
