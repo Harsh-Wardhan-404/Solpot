@@ -61,11 +61,10 @@ body {
 
 /* Utility Classes */
 .glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(132, 204, 22, 0.15);
   border-radius: 1rem;
-  box-shadow: var(--glass-shadow);
 }
 
 .solana-gradient {
@@ -77,16 +76,4 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-.solana-glow {
-  box-shadow: 
-    0 0 20px var(--solana-lime-glow),
-    0 0 40px rgba(132, 204, 22, 0.2);
-}
-
-.solana-glow-hover:hover {
-  box-shadow: 
-    0 0 30px rgba(132, 204, 22, 0.6),
-    0 0 60px rgba(132, 204, 22, 0.3);
 }

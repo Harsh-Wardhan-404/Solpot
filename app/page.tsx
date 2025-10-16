@@ -1,10 +1,12 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import PixelBlast from '@/components/PixelBlast';
+import AnimatedBackground from '@/components/AnimatedBackground';
 import Dock from '@/components/Dock';
+import RotatingText from '@/components/RotatingText';
 import { Home, Coins, Trophy, Settings, Wallet, Timer } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'motion/react';
 import PotCard from '@/components/PotCard';
 import DepositForm from '@/components/DepositForm';
 
@@ -47,27 +49,8 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* PixelBlast Background */}
-      <div className="fixed inset-0 z-0">
-        <PixelBlast
-          variant="circle"
-          pixelSize={3}
-          color="#84cc16"
-          liquid={true}
-          liquidStrength={0.2}
-          liquidRadius={1.5}
-          enableRipples={true}
-          rippleIntensityScale={2}
-          rippleSpeed={0.5}
-          rippleThickness={0.15}
-          patternScale={2}
-          patternDensity={0.7}
-          speed={0.4}
-          transparent={true}
-          edgeFade={0.2}
-          antialias={true}
-        />
-      </div>
+      {/* Animated Background */}
+      <AnimatedBackground />
 
       {/* Content */}
       <div className="relative z-10" style={{ pointerEvents: 'none' }}>
@@ -87,148 +70,240 @@ export default function HomePage() {
         {/* Main Content */}
         <div className="container mx-auto px-6 pb-32" style={{ pointerEvents: 'auto' }}>
           {currentPage === 'home' && (
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-12 mt-20">
-                <h2 className="text-6xl font-bold text-white mb-6 drop-shadow-2xl">
-                  Welcome to SOLPOT
-                </h2>
-                <p className="text-2xl text-lime-400 font-semibold mb-4">
-                  The Last Depositor Wins! 🎯
+            <div className="max-w-7xl mx-auto">
+              {/* Hero Section */}
+              <div className="text-center mb-20 mt-16">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <h2 className="text-7xl font-bold text-white mb-4 tracking-tight">
+                    SOLPOT
+                  </h2>
+                  <div className="text-3xl font-bold mb-6">
+                    <RotatingText
+                      texts={[
+                        'Last Depositor Takes All 💰',
+                        'Win 90% of the Pot 🏆',
+                        'Time Your Move Perfectly ⏰',
+                        'Built on Solana 🚀'
+                      ]}
+                      rotationInterval={3000}
+                      staggerDuration={0.02}
+                      mainClassName="text-lime-400"
+                      transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+                    />
+                  </div>
+                </motion.div>
+                
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="text-xl text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed"
+                >
+                  The revolutionary on-chain game on Solana. Deposit SOL, time your move perfectly, 
+                  and win <span className="text-lime-400 font-semibold">90% of the pot</span> if you're the last depositor!
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="inline-flex items-center gap-3 bg-black/40 border border-lime-500/30 px-6 py-3 rounded-lg backdrop-blur-sm"
+                >
+                  <div className="w-2 h-2 bg-lime-400 rounded-full animate-pulse"></div>
+                  <span className="text-lime-400 font-semibold">100% On-Chain • Fully Transparent • Solana Devnet</span>
+                </motion.div>
+              </div>
+
+              {/* Stats Row */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="grid grid-cols-3 gap-6 mb-20 max-w-4xl mx-auto"
+              >
+                <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm">
+                  <div className="text-4xl font-bold text-lime-400 mb-2">90%</div>
+                  <div className="text-sm text-gray-400">Winner Takes</div>
+                </div>
+                <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm">
+                  <div className="text-4xl font-bold text-lime-400 mb-2">2 SOL</div>
+                  <div className="text-sm text-gray-400">Pot Capacity</div>
+                </div>
+                <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm">
+                  <div className="text-4xl font-bold text-lime-400 mb-2">24h</div>
+                  <div className="text-sm text-gray-400">Round Duration</div>
+                </div>
+              </motion.div>
+
+              {/* How It Works */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="mb-20"
+              >
+                <h3 className="text-4xl font-bold text-white text-center mb-12">How It Works</h3>
+                <div className="grid md:grid-cols-3 gap-8">
+                  {/* Step 1 */}
+                  <div className="relative">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl">
+                      1
+                    </div>
+                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full">
+                      <Coins className="text-lime-400 mb-4" size={40} />
+                      <h4 className="text-xl font-bold text-white mb-3">Connect & Deposit</h4>
+                      <ul className="space-y-2 text-gray-300 text-sm">
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span>Connect your Solana wallet</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span>Minimum deposit: <strong className="text-white">0.01 SOL</strong></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span>Cooldown period enforced</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="relative">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl">
+                      2
+                    </div>
+                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full">
+                      <Timer className="text-lime-400 mb-4" size={40} />
+                      <h4 className="text-xl font-bold text-white mb-3">Time Your Move</h4>
+                      <ul className="space-y-2 text-gray-300 text-sm">
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span>Pot reaches <strong className="text-white">2 SOL</strong> OR</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span><strong className="text-white">24-hour deadline</strong> expires</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span>Overshoot allowed - no refunds!</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="relative">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-lime-500/20 border-2 border-lime-400 rounded-full flex items-center justify-center text-lime-400 font-bold text-xl">
+                      3
+                    </div>
+                    <div className="bg-black/40 border border-lime-500/20 rounded-xl p-8 pt-12 backdrop-blur-sm h-full">
+                      <Trophy className="text-lime-400 mb-4" size={40} />
+                      <h4 className="text-xl font-bold text-white mb-3">Win The Pot</h4>
+                      <ul className="space-y-2 text-gray-300 text-sm">
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span>Last depositor wins!</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span>Winner: <strong className="text-lime-400">90%</strong></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-lime-400 mt-1">→</span>
+                          <span>Platform: 5% • Rakeback: 5%</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Why SolPot */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="mb-16"
+              >
+                <h3 className="text-4xl font-bold text-white text-center mb-12">Why Play SolPot?</h3>
+                <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                  <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-400 flex items-center justify-center flex-shrink-0">
+                        <span className="text-lime-400 text-xl">✓</span>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-2">100% Transparent</h4>
+                        <p className="text-gray-400 text-sm">All transactions verified on Solana blockchain. No hidden mechanics.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-400 flex items-center justify-center flex-shrink-0">
+                        <span className="text-lime-400 text-xl">⚡</span>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-2">Lightning Fast</h4>
+                        <p className="text-gray-400 text-sm">Powered by Solana - instant deposits, near-zero fees.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-400 flex items-center justify-center flex-shrink-0">
+                        <span className="text-lime-400 text-xl">🔒</span>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-2">Permissionless</h4>
+                        <p className="text-gray-400 text-sm">Anyone can finalize. No central authority needed.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-black/40 border border-lime-500/20 rounded-xl p-6 backdrop-blur-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-lime-500/20 border border-lime-400 flex items-center justify-center flex-shrink-0">
+                        <span className="text-lime-400 text-xl">💎</span>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-2">Fair Distribution</h4>
+                        <p className="text-gray-400 text-sm">90% to winner, 5% platform, 5% rakeback - crystal clear.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* CTA Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+                className="text-center bg-gradient-to-br from-lime-500/10 to-lime-600/5 border border-lime-500/30 rounded-2xl p-12"
+              >
+                <h3 className="text-3xl font-bold text-white mb-4">Ready to Play?</h3>
+                <p className="text-gray-300 mb-8 text-lg">
+                  Connect your wallet and join the action. May the best timer win!
                 </p>
-                <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-6">
-                  A revolutionary on-chain game built on Solana where timing is everything.
-                  Be the last to deposit before the deadline and claim the entire pot!
-                </p>
-                <div className="inline-block glass-panel px-6 py-3 solana-glow">
-                  <p className="text-lime-400 font-semibold">
-                    🔥 Running on Solana Devnet • 100% Permissionless • Fully On-Chain
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature Cards */}
-              <div className="grid md:grid-cols-3 gap-6 mb-12">
-                <div className="glass-panel p-6 text-center solana-glow">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-lime-500/20 border-2 border-lime-400 flex items-center justify-center">
-                    <Coins className="text-lime-400" size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold text-lime-400 mb-2">Fair & Transparent</h3>
-                  <p className="text-gray-300 text-sm">
-                    All transactions are on-chain and verifiable. Built with Anchor on Solana for maximum security.
-                  </p>
-                </div>
-
-                <div className="glass-panel p-6 text-center solana-glow">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-lime-500/20 border-2 border-lime-400 flex items-center justify-center">
-                    <Trophy className="text-lime-400" size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold text-lime-400 mb-2">90% Winner Take</h3>
-                  <p className="text-gray-300 text-sm">
-                    Winner gets 90%, Platform 5%, Rakeback 5%. No hidden fees, completely transparent distribution.
-                  </p>
-                </div>
-
-                <div className="glass-panel p-6 text-center solana-glow">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-lime-500/20 border-2 border-lime-400 flex items-center justify-center">
-                    <Timer className="text-lime-400" size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold text-lime-400 mb-2">Time-Based Rounds</h3>
-                  <p className="text-gray-300 text-sm">
-                    Each pot has a fixed capacity (2 SOL) and 24h deadline. Last depositor when either limit hits wins!
-                  </p>
-                </div>
-              </div>
-
-              {/* How It Works Section */}
-              <div className="glass-panel p-8 mb-12 solana-glow">
-                <h3 className="text-3xl font-bold text-lime-400 mb-6 text-center">How It Works</h3>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <span className="bg-lime-500/20 w-8 h-8 rounded-full flex items-center justify-center text-lime-400 font-bold">1</span>
-                      Connect & Deposit
-                    </h4>
-                    <ul className="space-y-2 text-gray-300 text-sm">
-                      <li className="flex items-start gap-2">
-                        <span className="text-lime-400 mt-1">▸</span>
-                        <span>Connect your Solana wallet (Phantom, Solflare, etc.)</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-lime-400 mt-1">▸</span>
-                        <span>Minimum deposit: <strong className="text-lime-400">0.01 SOL</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-lime-400 mt-1">▸</span>
-                        <span>Cooldown period between deposits to prevent spam</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-lime-400 mt-1">▸</span>
-                        <span><strong>Overshoot allowed:</strong> Deposits exceeding capacity are not refunded</span>
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <span className="bg-lime-500/20 w-8 h-8 rounded-full flex items-center justify-center text-lime-400 font-bold">2</span>
-                      Win Conditions
-                    </h4>
-                    <ul className="space-y-2 text-gray-300 text-sm">
-                      <li className="flex items-start gap-2">
-                        <span className="text-lime-400 mt-1">▸</span>
-                        <span>Pot reaches <strong className="text-lime-400">2 SOL capacity</strong> → Last depositor wins</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-lime-400 mt-1">▸</span>
-                        <span><strong className="text-lime-400">24-hour deadline</strong> expires → Last depositor wins</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-lime-400 mt-1">▸</span>
-                        <span>Status changes: Open → Finalizing → Settled</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-lime-400 mt-1">▸</span>
-                        <span>Anyone can call <code className="bg-black/40 px-2 py-0.5 rounded text-lime-400">finalize()</code> - it's permissionless!</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-lime-500/30">
-                  <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-                    <Trophy className="text-lime-400" size={20} />
-                    Payout Distribution
-                  </h4>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
-                      <div className="text-3xl font-bold text-lime-400 mb-1">90%</div>
-                      <div className="text-sm text-gray-300">Winner</div>
-                    </div>
-                    <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
-                      <div className="text-3xl font-bold text-lime-400 mb-1">5%</div>
-                      <div className="text-sm text-gray-300">Platform Fee</div>
-                    </div>
-                    <div className="bg-lime-500/10 rounded-lg p-4 border border-lime-500/30">
-                      <div className="text-3xl font-bold text-lime-400 mb-1">5%</div>
-                      <div className="text-sm text-gray-300">Rakeback</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* CTA */}
-              <div className="text-center">
                 <button
                   onClick={() => setCurrentPage('pots')}
-                  className="bg-lime-500 hover:bg-lime-600 text-black font-bold text-xl px-12 py-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-lime-500/50 inline-flex items-center gap-3"
+                  className="bg-lime-500 hover:bg-lime-600 text-black font-bold text-xl px-12 py-4 rounded-xl transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-3"
                 >
-                  <Coins size={24} />
-                  View Active Pots
+                  <Coins size={28} />
+                  Enter The Pot
+                  <span className="text-2xl">→</span>
                 </button>
-                <p className="text-gray-400 text-sm mt-4">
-                  Connect your wallet and join the action!
-                </p>
-              </div>
+              </motion.div>
             </div>
           )}
 

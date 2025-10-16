@@ -42,7 +42,7 @@ export default function DepositForm() {
 
   if (!pot) {
     return (
-      <div className="glass-panel p-6 solana-glow">
+      <div className="glass-panel p-6 ">
         <h3 className="text-xl font-bold solana-gradient-text mb-4">Deposit SOL</h3>
         <div className="text-center">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-lime-400 mx-auto mb-4"></div>
@@ -53,7 +53,7 @@ export default function DepositForm() {
   }
 
   return (
-    <div className="glass-panel p-6 solana-glow">
+    <div className="glass-panel p-6 ">
       <h3 className="text-xl font-bold text-lime-400 mb-4 flex items-center gap-2">
         <Send className="text-lime-400" size={24} />
         Deposit SOL
@@ -136,7 +136,7 @@ export default function DepositForm() {
           className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
             isDisabled
               ? "bg-gray-700/50 text-gray-500 cursor-not-allowed border border-gray-600/30"
-              : "bg-lime-500 hover:bg-lime-600 text-black hover:scale-105 solana-glow-hover border border-lime-500/50 font-bold"
+              : "bg-lime-500 hover:bg-lime-600 text-black hover:scale-105 border border-lime-500/50 font-bold"
           }`}
         >
           {isLoading ? (
