@@ -6,7 +6,7 @@ skip-lint = false
 anchor_version = "0.30.1"
 
 [programs.localnet]
-universal_pot = "GX8WLLD25Hi5QMpQKmSfM9WVqvusHQFcJPARdvTr3LG"
+universal_pot = "6H3fS93EsYXjdaymBYFLhwWH6sKBgrYMsg2d1BXjntZn"
 
 [registry]
 url = "https://anchor.projectserum.com"

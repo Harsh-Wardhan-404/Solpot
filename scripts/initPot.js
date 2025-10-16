@@ -204,7 +204,7 @@ async function main() {
   const program = new Program(prepareIdl(idl, PROGRAM_ID), provider);
   const [potPda] = web3.PublicKey.findProgramAddressSync([Buffer.from("pot")], PROGRAM_ID);
 
-  const capacityLamports = new BN(100 * 1e9);                 // 100 SOL
+  const capacityLamports = new BN(2 * 1e9);                 // 2 SOL
   const deadlineTs = new BN(Math.floor(Date.now() / 1000) + 24 * 60 * 60); // +24h
   const feeBps = 500;                                         // 5%
   const cooldownSecs = 5;                                     // 5s

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("GX8WLLD25Hi5QMpQKmSfM9WVqvusHQFcJPARdvTr3LG");
+declare_id!("6H3fS93EsYXjdaymBYFLhwWH6sKBgrYMsg2d1BXjntZn");
 
 #[program]
 pub mod universal_pot {
