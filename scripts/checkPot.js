@@ -4,19 +4,21 @@ const idl = require("../anchor/IDL/universal_pot.json");
 require("dotenv").config({ path: ".env.local" });
 
 (async () => {
-  const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID);
+  const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID || idl.address || (idl.metadata && idl.metadata.address));
   const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("devnet"), "processed");
   const provider = new AnchorProvider(connection, { publicKey: null }, { preflightCommitment: "processed" });
   const program = new Program({ ...idl, metadata: { ...(idl.metadata||{}), address: PROGRAM_ID.toBase58() } }, provider);
 
   const [potPda] = PublicKey.findProgramAddressSync([Buffer.from("pot")], PROGRAM_ID);
+  const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from("vault")], PROGRAM_ID);
   const pot = await program.account.pot.fetchNullable(potPda);
   if (!pot) { console.log("Pot not initialized"); return; }
 
-  const vaultLamports = (await connection.getAccountInfo(potPda))?.lamports || 0;
+  const vaultLamports = (await connection.getAccountInfo(vaultPda))?.lamports || 0;
   const toSol = x => (Number(x)/1e9).toFixed(4);
 
   console.log("Pot PDA:", potPda.toBase58());
+  console.log("Vault PDA:", vaultPda.toBase58());
   console.log("Status:", pot.status, "(0 Open, 1 Finalizing, 2 Settled)");
   console.log("Capacity SOL:", toSol(pot.capacityLamports));
   console.log("Total deposited SOL:", toSol(pot.totalDeposited));

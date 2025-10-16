@@ -3,16 +3,20 @@ seeds = true
 skip-lint = false
 
 [toolchain]
-anchor_version = "0.30.1"
+anchor_version = "0.32.1"
 
 [programs.localnet]
 universal_pot = "6H3fS93EsYXjdaymBYFLhwWH6sKBgrYMsg2d1BXjntZn"
+
+[programs.devnet]
+# Deployed program ID for devnet
+universal_pot = "4QNzS1m3q4TfBdadQ6Fq9zVg9QCp9RwEfHk8d7ewBP7V"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

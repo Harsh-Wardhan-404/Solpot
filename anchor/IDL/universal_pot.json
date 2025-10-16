@@ -1,5 +1,5 @@
 {
-  "address": "6H3fS93EsYXjdaymBYFLhwWH6sKBgrYMsg2d1BXjntZn",
+  "address": "4QNzS1m3q4TfBdadQ6Fq9zVg9QCp9RwEfHk8d7ewBP7V",
   "metadata": {
     "name": "universal_pot",
     "version": "0.1.0",
@@ -35,6 +35,24 @@
                 "value": [
                   112,
                   111,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
                   116
                 ]
               }
@@ -113,12 +131,34 @@
           }
         },
         {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
           "name": "winner",
           "writable": true
         },
         {
           "name": "platform_treasury",
           "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": []
@@ -158,8 +198,98 @@
           }
         },
         {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "capacity_lamports",
+          "type": "u64"
+        },
+        {
+          "name": "deadline_ts",
+          "type": "i64"
+        },
+        {
+          "name": "fee_bps",
+          "type": "u16"
+        },
+        {
+          "name": "cooldown_secs",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "reset_pot",
+      "discriminator": [
+        156,
+        51,
+        43,
+        94,
+        161,
+        97,
+        8,
+        95
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "pot",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
         }
       ],
       "args": [
@@ -265,6 +395,16 @@
       "code": 6010,
       "name": "EmptyVault",
       "msg": "Empty vault"
+    },
+    {
+      "code": 6011,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6012,
+      "name": "VaultNotEmpty",
+      "msg": "Vault must be empty before reset"
     }
   ],
   "types": [
@@ -291,6 +431,10 @@
         "fields": [
           {
             "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
             "type": "pubkey"
           },
           {
@@ -327,6 +471,10 @@
           },
           {
             "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
             "type": "u8"
           }
         ]

@@ -185,7 +185,7 @@ async function main() {
   console.log("NEXT_PUBLIC_PROGRAM_ID", process.env.NEXT_PUBLIC_PROGRAM_ID);
   console.log("NEXT_PUBLIC_SOLANA_RPC_URL", process.env.NEXT_PUBLIC_SOLANA_RPC_URL);
   
-  const PROGRAM_ID = new web3.PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID);
+  const PROGRAM_ID = new web3.PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID || idl.address || (idl.metadata && idl.metadata.address));
   const connection = new Connection(
     process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("devnet"),
     "processed"
@@ -214,6 +214,7 @@ async function main() {
 
   const program = new Program(prepareIdl(idl, PROGRAM_ID), provider);
   const [potPda] = web3.PublicKey.findProgramAddressSync([Buffer.from("pot")], PROGRAM_ID);
+  const [vaultPda] = web3.PublicKey.findProgramAddressSync([Buffer.from("vault")], PROGRAM_ID);
 
   const deadlineTs = new BN(Math.floor(Date.now() / 1000) + 24 * 60 * 60); // +24h
   const feeBps = 500;                                         // 5%
@@ -222,6 +223,7 @@ async function main() {
   console.log("Initializing pot on devnet…");
   console.log("Program ID:", PROGRAM_ID.toBase58());
   console.log("Pot PDA:", potPda.toBase58());
+  console.log("Vault PDA:", vaultPda.toBase58());
   
   try {
     const capacityLamports = randomCapacityLamports();
@@ -230,6 +232,7 @@ async function main() {
       .accounts({
         authority: payer.publicKey,
         pot: potPda,
+        vault: vaultPda,
         systemProgram: web3.SystemProgram.programId,
       })
       .rpc();

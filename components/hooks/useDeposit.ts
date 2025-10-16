@@ -24,6 +24,7 @@ export function useDeposit() {
         .accounts({
           user: publicKey,
           pot: potPda,
+          vault: vaultPda!,
           depositorState: depositorPda,
           systemProgram: web3.SystemProgram.programId,
         })
