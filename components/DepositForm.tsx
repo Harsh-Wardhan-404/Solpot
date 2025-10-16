@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDeposit } from "./hooks/useDeposit";
 import { usePot } from "./hooks/usePot";
+import { Send, Loader2, AlertCircle, Info, Zap } from "lucide-react";
 
 export default function DepositForm() {
   const [amount, setAmount] = useState("");
@@ -35,12 +36,16 @@ export default function DepositForm() {
 
   const isDisabled = !pot || pot.status !== 0 || isLoading;
 
+  const capacity = pot ? Number(pot.capacityLamports) / 1e9 : 2;
+  const deposited = pot ? Number(pot.totalDeposited) / 1e9 : 0;
+  const remaining = capacity - deposited;
+
   if (!pot) {
     return (
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-bold text-white mb-4">Deposit SOL</h3>
+      <div className="glass-panel p-6 solana-glow">
+        <h3 className="text-xl font-bold solana-gradient-text mb-4">Deposit SOL</h3>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-lime-400 mx-auto mb-4"></div>
           <p className="text-gray-300">Loading pot data...</p>
         </div>
       </div>
@@ -48,31 +53,79 @@ export default function DepositForm() {
   }
 
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-      <h3 className="text-xl font-bold text-white mb-4">Deposit SOL</h3>
+    <div className="glass-panel p-6 solana-glow">
+      <h3 className="text-xl font-bold text-lime-400 mb-4 flex items-center gap-2">
+        <Send className="text-lime-400" size={24} />
+        Deposit SOL
+      </h3>
       
       <form onSubmit={handleDeposit} className="space-y-4">
+        {/* Amount Input */}
         <div>
-          <label className="block text-sm text-gray-300 mb-2">
+          <label className="block text-sm text-gray-300 mb-2 font-semibold">
             Amount (SOL)
           </label>
-          <input
-            type="number"
-            step="0.01"
-            min="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.01"
-            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            disabled={isDisabled}
-          />
-          <p className="text-xs text-gray-400 mt-1">
-            Minimum: 0.01 SOL
-          </p>
+          <div className="relative">
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.01"
+              className="w-full px-4 py-3 bg-black/30 border border-lime-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent transition-all"
+              disabled={isDisabled}
+            />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-semibold">
+              SOL
+            </div>
+          </div>
+          <div className="mt-2 flex justify-between items-center text-xs">
+            <span className="text-gray-400 flex items-center gap-1">
+              <span className="text-lime-400">●</span>
+              Minimum: 0.01 SOL
+            </span>
+            {remaining > 0 && (
+              <span className="text-lime-400 font-semibold">
+                {remaining.toFixed(4)} SOL remaining
+              </span>
+            )}
+          </div>
         </div>
 
+        {/* Quick Amount Buttons */}
+        {pot.status === 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setAmount("0.1")}
+              disabled={isDisabled}
+              className="px-3 py-2 bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/30 rounded-lg text-lime-400 text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              0.1 SOL
+            </button>
+            <button
+              type="button"
+              onClick={() => setAmount("0.5")}
+              disabled={isDisabled}
+              className="px-3 py-2 bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/30 rounded-lg text-lime-400 text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              0.5 SOL
+            </button>
+            <button
+              type="button"
+              onClick={() => setAmount(remaining > 0 ? remaining.toFixed(4) : "1")}
+              disabled={isDisabled}
+              className="px-3 py-2 bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/30 rounded-lg text-lime-400 text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Max
+            </button>
+          </div>
+        )}
+
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3">
+          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 flex items-start gap-2">
+            <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={18} />
             <p className="text-red-400 text-sm">{error}</p>
           </div>
         )}
@@ -80,19 +133,22 @@ export default function DepositForm() {
         <button
           type="submit"
           disabled={isDisabled}
-          className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
+          className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
             isDisabled
-              ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white hover:scale-105"
+              ? "bg-gray-700/50 text-gray-500 cursor-not-allowed border border-gray-600/30"
+              : "bg-lime-500 hover:bg-lime-600 text-black hover:scale-105 solana-glow-hover border border-lime-500/50 font-bold"
           }`}
         >
           {isLoading ? (
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+            <>
+              <Loader2 className="animate-spin" size={20} />
               Depositing...
-            </div>
+            </>
           ) : pot?.status === 0 ? (
-            "Deposit SOL"
+            <>
+              <Send size={18} />
+              Deposit SOL
+            </>
           ) : pot?.status === 1 ? (
             "Pot Finalizing"
           ) : (
@@ -101,11 +157,44 @@ export default function DepositForm() {
         </button>
       </form>
 
+      {/* Game Rules & Info */}
       {pot?.status === 0 && (
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-400">
-            Last depositor wins when pot reaches capacity or deadline!
-          </p>
+        <div className="mt-4 space-y-3">
+          <div className="bg-lime-500/5 rounded-lg p-3 border border-lime-500/20">
+            <div className="flex items-start gap-2">
+              <Zap className="text-lime-400 flex-shrink-0 mt-0.5" size={16} />
+              <p className="text-xs text-gray-300">
+                <strong className="text-lime-400">Be the last depositor</strong> when capacity is reached or deadline expires to win the pot!
+              </p>
+            </div>
+          </div>
+          
+          <div className="bg-black/20 rounded-lg p-3 border border-lime-500/10">
+            <div className="flex items-start gap-2 mb-2">
+              <Info className="text-lime-400 flex-shrink-0 mt-0.5" size={16} />
+              <p className="text-xs font-bold text-lime-400">Important Rules:</p>
+            </div>
+            <ul className="text-xs text-gray-300 space-y-1 ml-6">
+              <li className="flex items-start gap-2">
+                <span className="text-lime-400 mt-0.5">▸</span>
+                <span><strong>Overshoot allowed:</strong> Deposits exceeding capacity are not refunded</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-lime-400 mt-0.5">▸</span>
+                <span>Cooldown period enforced between your deposits</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-lime-400 mt-0.5">▸</span>
+                <span>All transactions are on-chain and verifiable</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="text-center pt-2">
+            <p className="text-xs text-gray-400">
+              💎 Winner gets <span className="text-lime-400 font-bold">90%</span> of the pot! 🏆
+            </p>
+          </div>
         </div>
       )}
     </div>

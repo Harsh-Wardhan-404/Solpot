@@ -43,7 +43,7 @@ async function main() {
   const cooldownSecs = 5;                                     // 5s
 
   console.log("Initializing pot on devnet…");
-  await program.methods
+  const tx = await (program.methods as any)
     .initPot(capacityLamports, deadlineTs, feeBps, cooldownSecs)
     .accounts({
       authority: payer.publicKey,
@@ -53,6 +53,7 @@ async function main() {
     .rpc();
 
   console.log("Pot initialized:", potPda.toBase58());
+  console.log("Transaction:", tx);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

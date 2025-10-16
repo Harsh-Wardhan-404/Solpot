@@ -1,8 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Solana Lime Colors */
+  --solana-lime: #84cc16;
+  --solana-lime-light: #a3e635;
+  --solana-lime-dark: #65a30d;
+  --solana-lime-glow: rgba(132, 204, 22, 0.5);
+  
+  --solana-black: #0a0a0a;
+  --solana-dark: #1a1a1a;
+  --solana-darker: #0f0f0f;
+  
+  /* Background & Foreground */
+  --background: var(--solana-black);
+  --foreground: #ffffff;
+  
+  /* Accent Colors */
+  --accent-primary: var(--solana-lime);
+  
+  /* Glass Effect */
+  --glass-bg: rgba(132, 204, 22, 0.05);
+  --glass-border: rgba(132, 204, 22, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(132, 204, 22, 0.15);
 }
 
 @theme inline {
@@ -10,17 +29,64 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  
+  /* Custom Solana Colors */
+  --color-solana-lime: var(--solana-lime);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar - Lime Theme */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--solana-darker);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--solana-lime);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--solana-lime-light);
+}
+
+/* Utility Classes */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  box-shadow: var(--glass-shadow);
+}
+
+.solana-gradient {
+  background: linear-gradient(135deg, var(--solana-lime-dark) 0%, var(--solana-lime) 50%, var(--solana-lime-light) 100%);
+}
+
+.solana-gradient-text {
+  background: linear-gradient(135deg, var(--solana-lime) 0%, var(--solana-lime-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.solana-glow {
+  box-shadow: 
+    0 0 20px var(--solana-lime-glow),
+    0 0 40px rgba(132, 204, 22, 0.2);
+}
+
+.solana-glow-hover:hover {
+  box-shadow: 
+    0 0 30px rgba(132, 204, 22, 0.6),
+    0 0 60px rgba(132, 204, 22, 0.3);
 }
