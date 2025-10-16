@@ -13,7 +13,7 @@ export function useFinalize() {
     if (!program) throw new Error("Program not ready");
     const winner = pot?.lastDepositor || publicKey;
     if (!winner) throw new Error("Winner unknown");
-    await program.methods
+    const tx = await (program.methods as any)
       .finalize()
       .accounts({
         pot: potPda,
@@ -22,6 +22,7 @@ export function useFinalize() {
         platformTreasury: new web3.PublicKey(platformTreasury),
       })
       .rpc();
+    console.log("Finalize successful:", tx);
   }, [program, potPda, vaultPda, pot, publicKey]);
 
   return { finalize };

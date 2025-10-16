@@ -30,7 +30,7 @@ export function usePot() {
     let sub: number | null = null;
     (async () => {
       try {
-        const data = await program.account.pot.fetchNullable(potPda);
+        const data = await (program.account as any).pot.fetchNullable(potPda);
         setPot(data);
         const bal = await program.provider.connection.getBalance(vaultPda);
         setVaultBalance(bal);

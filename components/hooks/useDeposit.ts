@@ -1,7 +1,8 @@
 "use client";
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { BN, web3 } from "@coral-xyz/anchor";
+import { web3 } from "@coral-xyz/anchor";
+import BN from "bn.js";
 import { useCallback } from "react";
 import { usePot } from "./usePot";
 
@@ -17,8 +18,9 @@ export function useDeposit() {
         [Buffer.from("depositor"), potPda.toBuffer(), publicKey.toBuffer()],
         program.programId
       );
-      await program.methods
-        .deposit(new BN(lamports))
+      const amount = new BN(lamports);
+      const tx = await (program.methods as any)
+        .deposit(amount)
         .accounts({
           user: publicKey,
           pot: potPda,
@@ -26,6 +28,7 @@ export function useDeposit() {
           systemProgram: web3.SystemProgram.programId,
         })
         .rpc();
+      console.log("Deposit successful:", tx);
     } catch (error) {
       console.error("Deposit failed:", error);
       throw error;
@@ -34,5 +37,4 @@ export function useDeposit() {
 
   return { deposit };
 }
-
 
