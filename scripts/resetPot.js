@@ -30,7 +30,8 @@ async function main() {
   };
 
   const provider = new AnchorProvider(connection, wallet, { preflightCommitment: "confirmed" });
-  const program = new Program({ ...idl, metadata: { ...(idl.metadata||{}), address: PROGRAM_ID.toBase58() } }, PROGRAM_ID, provider);
+  const patchedIdl = { ...idl, metadata: { ...(idl.metadata||{}), address: PROGRAM_ID.toBase58() } };
+  const program = new Program(patchedIdl, provider);
 
   const [potPda] = PublicKey.findProgramAddressSync([Buffer.from("pot")], PROGRAM_ID);
   const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from("vault")], PROGRAM_ID);
@@ -72,7 +73,6 @@ async function main() {
         authority: payer.publicKey,
         pot: potPda,
         vault: vaultPda,
-        systemProgram: web3.SystemProgram.programId,
       })
       .rpc();
 

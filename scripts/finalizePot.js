@@ -25,32 +25,36 @@ const fs = require("fs");
 
   const winner = pot.lastDepositor;
   const platformTreasury = new PublicKey(process.env.NEXT_PUBLIC_PLATFORM_TREASURY);
-
   const bal = async (pk) => (await connection.getBalance(pk));
 
-  const beforeWinner = await bal(winner);
-  const beforePlatform = await bal(platformTreasury);
-  const beforeVault = await bal(vaultPda);
+  // Check if pot is already settled
+  if (pot.status === 2) {
+    console.log("ℹ️ Pot already settled (Status = 2). Skipping finalization.");
+  } else {
+    const beforeWinner = await bal(winner);
+    const beforePlatform = await bal(platformTreasury);
+    const beforeVault = await bal(vaultPda);
 
-  console.log("Finalizing…");
-  const sig = await program.methods.finalize().accounts({
-    pot: potPda,
-    vault: vaultPda,
-    winner,
-    platformTreasury,
-    systemProgram: web3.SystemProgram.programId,
-  }).rpc();
-  console.log("Tx:", sig);
-  await connection.confirmTransaction(sig, "confirmed");
+    console.log("Finalizing…");
+    const sig = await program.methods.finalize().accounts({
+      pot: potPda,
+      vault: vaultPda,
+      winner,
+      platformTreasury,
+      systemProgram: web3.SystemProgram.programId,
+    }).rpc();
+    console.log("Tx:", sig);
+    await connection.confirmTransaction(sig, "confirmed");
 
-  const afterWinner = await bal(winner);
-  const afterPlatform = await bal(platformTreasury);
-  const afterVault = await bal(vaultPda);
+    const afterWinner = await bal(winner);
+    const afterPlatform = await bal(platformTreasury);
+    const afterVault = await bal(vaultPda);
 
-  const toSol = x => (x/1e9).toFixed(4);
-  console.log("Winner +Δ SOL:", toSol(afterWinner - beforeWinner));
-  console.log("Platform +Δ SOL:", toSol(afterPlatform - beforePlatform));
-  console.log("Vault -Δ SOL:", toSol(beforeVault - afterVault));
+    const toSol = x => (x/1e9).toFixed(4);
+    console.log("Winner +Δ SOL:", toSol(afterWinner - beforeWinner));
+    console.log("Platform +Δ SOL:", toSol(afterPlatform - beforePlatform));
+    console.log("Vault -Δ SOL:", toSol(beforeVault - afterVault));
+  }
 
   // Auto-init next round (random capacity) best-effort
   try {
@@ -67,26 +71,27 @@ const fs = require("fs");
     const feeBps = 500;
     const cooldownSecs = 5;
 
-    // if account was closed on finalize, fetch will fail; init will recreate
+    // Check if pot exists and is settled, then reset for next round
     let potAfter = null;
     try { potAfter = await program.account.pot.fetch(potPda); } catch {}
-    if (!potAfter || potAfter.status !== 0) {
+    if (potAfter && potAfter.status === 2) {
       try {
         await program.methods
-          .initPot(capacityLamports, deadlineTs, feeBps, cooldownSecs)
+          .resetPot(capacityLamports, deadlineTs, feeBps, cooldownSecs)
           .accounts({
             authority: payer.publicKey,
             pot: potPda,
             vault: vaultPda,
-            systemProgram: web3.SystemProgram.programId,
           })
           .rpc();
         console.log("✅ Next round initialized:", potPda.toBase58());
       } catch (e) {
-        console.log("ℹ️ Auto-init skipped:", e.message || String(e));
+        console.log("ℹ️ Auto-reset skipped:", e.message || String(e));
       }
-    } else {
+    } else if (potAfter && potAfter.status === 0) {
       console.log("ℹ️ Pot already open; skipping auto-init.");
+    } else {
+      console.log("ℹ️ Pot not in expected state; skipping auto-init.");
     }
   } catch (e) {
     console.log("ℹ️ Auto-init failed (non-fatal):", e.message || String(e));
