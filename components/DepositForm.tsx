@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDeposit } from "./hooks/useDeposit";
 import { usePot } from "./hooks/usePot";
 import { Send, Loader2, AlertCircle, Info, Zap } from "lucide-react";
+import Logo from "./Logo";
 
 export default function DepositForm() {
   const [amount, setAmount] = useState("");
@@ -64,7 +65,7 @@ export default function DepositForm() {
   return (
     <div className="glass-panel p-6 ">
       <h3 className="text-xl font-bold text-lime-400 mb-4 flex items-center gap-2">
-        <Send className="text-lime-400" size={24} />
+        <Logo variant="icon" size="sm" />
         Deposit SOL
       </h3>
       
@@ -163,7 +164,7 @@ export default function DepositForm() {
         <div className="mt-4 space-y-3">
           <div className="bg-lime-500/5 rounded-lg p-3 border border-lime-500/20">
             <div className="flex items-start gap-2">
-              <Zap className="text-lime-400 flex-shrink-0 mt-0.5" size={16} />
+              <Logo variant="icon" size="sm" className="flex-shrink-0 mt-0.5" />
               <p className="text-xs text-gray-300">
                 <strong className="text-lime-400">Be the last depositor</strong> when capacity is reached or deadline expires to win the pot!
               </p>

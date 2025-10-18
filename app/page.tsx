@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import Dock from '@/components/Dock';
 import RotatingText from '@/components/RotatingText';
+import Logo from '@/components/Logo';
 import { Home, Coins, Trophy, Settings, Wallet, Timer } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { motion, useInView } from 'motion/react';
@@ -68,14 +69,7 @@ export default function HomePage() {
       <div className="relative z-10" style={{ pointerEvents: 'none' }}>
         {/* Header */}
         <div className="flex justify-between items-center p-6" style={{ pointerEvents: 'auto' }}>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-lime-500/20 border-2 border-lime-400 flex items-center justify-center shadow-lg shadow-lime-500/30">
-              <Coins className="text-lime-400" size={28} />
-            </div>
-            <h1 className="text-4xl font-bold text-lime-400 tracking-tight drop-shadow-lg">
-              SOLPOT
-            </h1>
-          </div>
+          <Logo variant="full" size="lg" className="drop-shadow-lg" />
           <WalletMultiButton className="!bg-lime-500 hover:!bg-lime-600 !text-black !font-bold !px-6 !py-2 !rounded-lg !transition-all !duration-300 !transform hover:!scale-105 !shadow-lg !shadow-lime-500/50" />
         </div>
 
@@ -91,9 +85,9 @@ export default function HomePage() {
                   transition={{ duration: 0.6 }}
                   className="flex flex-col items-center justify-center"
                 >
-                  <h2 className="text-7xl font-bold text-white mb-6 tracking-tight">
-                    SOLPOT
-                  </h2>
+                  <div className="mb-6">
+                    <Logo variant="text" size="xl" className="drop-shadow-2xl" />
+                  </div>
                   <div className="text-3xl font-bold mb-8 w-full flex justify-center">
                     <div className="inline-flex justify-center items-center min-h-[2.5rem]">
                       <RotatingText

@@ -3,6 +3,7 @@
 import { usePot } from "./hooks/usePot";
 import { Timer, TrendingUp, Trophy, User, Shield, Zap, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
+import Logo from "./Logo";
 
 export default function PotCard() {
   const { pot, vaultBalance } = usePot();
@@ -76,7 +77,7 @@ export default function PotCard() {
     <div className="glass-panel p-6 ">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-lime-400 flex items-center gap-2">
-          <Trophy className="text-lime-400" size={28} />
+          <Logo variant="icon" size="md" />
           Universal Pot
         </h2>
         <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusColor}`}>
