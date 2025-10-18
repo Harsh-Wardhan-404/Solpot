@@ -109,6 +109,17 @@ const normalizeTypeDef = (typeDef) => {
   return typeDef;
 };
 
+function randomCapacityLamports() {
+  const min = Number(process.env.MYSTERY_MIN_CAP_SOL ?? 1);
+  const max = Number(process.env.MYSTERY_MAX_CAP_SOL ?? 3);
+  const step = Number(process.env.MYSTERY_STEP_SOL ?? 0.1);
+
+  const steps = Math.max(1, Math.floor((max - min) / step + 0.0000001));
+  const k = Math.floor(Math.random() * (steps + 1));
+  const capSol = Number((min + k * step).toFixed(6));
+  return new BN(Math.floor(capSol * 1e9)); // lamports
+}
+
 const prepareIdl = (rawIdl, programId) => {
   const idlCopy = JSON.parse(JSON.stringify(rawIdl ?? {}));
   const programAddress = programId.toBase58();
@@ -174,7 +185,7 @@ async function main() {
   console.log("NEXT_PUBLIC_PROGRAM_ID", process.env.NEXT_PUBLIC_PROGRAM_ID);
   console.log("NEXT_PUBLIC_SOLANA_RPC_URL", process.env.NEXT_PUBLIC_SOLANA_RPC_URL);
   
-  const PROGRAM_ID = new web3.PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID);
+  const PROGRAM_ID = new web3.PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID || idl.address || (idl.metadata && idl.metadata.address));
   const connection = new Connection(
     process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("devnet"),
     "processed"
@@ -203,8 +214,8 @@ async function main() {
 
   const program = new Program(prepareIdl(idl, PROGRAM_ID), provider);
   const [potPda] = web3.PublicKey.findProgramAddressSync([Buffer.from("pot")], PROGRAM_ID);
+  const [vaultPda] = web3.PublicKey.findProgramAddressSync([Buffer.from("vault")], PROGRAM_ID);
 
-  const capacityLamports = new BN(2 * 1e9);                 // 2 SOL
   const deadlineTs = new BN(Math.floor(Date.now() / 1000) + 24 * 60 * 60); // +24h
   const feeBps = 500;                                         // 5%
   const cooldownSecs = 5;                                     // 5s
@@ -212,13 +223,16 @@ async function main() {
   console.log("Initializing pot on devnet…");
   console.log("Program ID:", PROGRAM_ID.toBase58());
   console.log("Pot PDA:", potPda.toBase58());
+  console.log("Vault PDA:", vaultPda.toBase58());
   
   try {
+    const capacityLamports = randomCapacityLamports();
     await program.methods
       .initPot(capacityLamports, deadlineTs, feeBps, cooldownSecs)
       .accounts({
         authority: payer.publicKey,
         pot: potPda,
+        vault: vaultPda,
         systemProgram: web3.SystemProgram.programId,
       })
       .rpc();

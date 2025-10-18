@@ -2,9 +2,20 @@
 
 import { usePot } from "./hooks/usePot";
 import { Timer, TrendingUp, Trophy, User, Shield, Zap, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function PotCard() {
   const { pot, vaultBalance } = usePot();
+  const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
+
+  // Update time every second for countdown
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Math.floor(Date.now() / 1000));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (!pot) {
     return (
@@ -28,9 +39,8 @@ export default function PotCard() {
   const progress = Math.min(deposited / capacity, 1.0);
   const remaining = capacity - deposited;
 
-  const now = Math.floor(Date.now() / 1000);
   const deadline = Number(pot.deadlineTs);
-  const timeLeft = Math.max(0, deadline - now);
+  const timeLeft = Math.max(0, deadline - currentTime);
   const hours = Math.floor(timeLeft / 3600);
   const minutes = Math.floor((timeLeft % 3600) / 60);
   const seconds = timeLeft % 60;
@@ -56,11 +66,11 @@ export default function PotCard() {
     ? pot.winner
     : pot.winner?.toBase58?.() ?? "";
 
-  // Calculate projected payouts
-  const totalVault = vaultBalance || deposited;
-  const winnerPayout = (totalVault * 0.90).toFixed(4);
-  const platformFee = (totalVault * 0.05).toFixed(4);
-  const rakeback = (totalVault * 0.05).toFixed(4);
+  // Calculate projected payouts (convert lamports to SOL)
+  const totalVaultSol = vaultBalance ? vaultBalance / 1e9 : deposited;
+  const winnerPayout = (totalVaultSol * 0.90).toFixed(4);
+  const platformFee = (totalVaultSol * 0.05).toFixed(4);
+  const rakeback = (totalVaultSol * 0.05).toFixed(4);
 
   return (
     <div className="glass-panel p-6 ">
@@ -75,47 +85,67 @@ export default function PotCard() {
       </div>
 
       <div className="space-y-6">
-        {/* Progress Bar */}
-        <div>
-          <div className="flex justify-between text-sm text-gray-300 mb-2">
-            <span className="flex items-center gap-1">
-              <TrendingUp size={16} className="text-lime-400" />
-              {deposited.toFixed(2)} SOL deposited
-            </span>
-            <span>{capacity.toFixed(2)} SOL capacity</span>
+        {/* Mystery Pot block (capacity hidden) */}
+        <div className="space-y-4">
+          <div className="text-center">
+            <p className="text-sm text-purple-300 mb-1 font-semibold">Mystery Pot</p>
+            <p className="text-gray-300 text-sm">
+              Capacity is hidden for this round. Keep an eye on deposits and time left.
+            </p>
           </div>
-          <div className="w-full bg-gray-800/50 rounded-full h-4 border border-lime-500/30 overflow-hidden">
-            <div 
-              className="bg-gradient-to-r from-lime-600 via-lime-500 to-lime-400 h-4 rounded-full transition-all duration-500 shadow-lg shadow-lime-500/50"
-              style={{ width: `${progress * 100}%` }}
-            ></div>
-          </div>
-          <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-            {remaining > 0 ? (
-              <>
-                <span className="text-lime-400">●</span>
-                {remaining.toFixed(2)} SOL remaining
-              </>
-            ) : (
-              <>
-                <span className="text-lime-400">●</span>
-                Pot is full!
-              </>
-            )}
+
+          {/* Show total deposited only */}
+          <div className="text-center">
+            <p className="text-gray-300 text-sm mb-1">Total Deposited</p>
+            <p className="text-2xl font-mono text-white">
+              {(Number(pot.totalDeposited) / 1e9).toFixed(3)} SOL
+            </p>
           </div>
         </div>
 
         {/* Time Left */}
-        <div className="text-center bg-lime-500/5 rounded-xl p-4 border border-lime-500/30">
+        <div className={`text-center rounded-xl p-4 border ${
+          timeLeft <= 0 
+            ? "bg-red-500/10 border-red-500/50" 
+            : timeLeft <= 300 
+            ? "bg-yellow-500/10 border-yellow-500/50" 
+            : "bg-lime-500/5 border-lime-500/30"
+        }`}>
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Timer className="text-lime-400" size={20} />
-            <p className="text-gray-300 text-sm font-semibold">Time Remaining</p>
+            <Timer className={
+              timeLeft <= 0 
+                ? "text-red-400" 
+                : timeLeft <= 300 
+                ? "text-yellow-400" 
+                : "text-lime-400"
+            } size={20} />
+            <p className={`text-sm font-semibold ${
+              timeLeft <= 0 
+                ? "text-red-300" 
+                : timeLeft <= 300 
+                ? "text-yellow-300" 
+                : "text-gray-300"
+            }`}>
+              {timeLeft <= 0 ? "Time Expired" : "Time Remaining"}
+            </p>
           </div>
-          <p className="text-3xl font-mono text-white font-bold">
-            {hours.toString().padStart(2, '0')}:
-            {minutes.toString().padStart(2, '0')}:
-            {seconds.toString().padStart(2, '0')}
+          <p className={`text-3xl font-mono font-bold ${
+            timeLeft <= 0 
+              ? "text-red-400" 
+              : timeLeft <= 300 
+              ? "text-yellow-400" 
+              : "text-white"
+          }`}>
+            {timeLeft <= 0 
+              ? "00:00:00" 
+              : `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+            }
           </p>
+          {timeLeft <= 300 && timeLeft > 0 && (
+            <p className="text-xs text-yellow-400 mt-2 font-semibold">
+              ⚠️ Less than 5 minutes left!
+            </p>
+          )}
         </div>
 
         {/* Last Depositor */}
@@ -149,20 +179,20 @@ export default function PotCard() {
           <div className="bg-black/20 rounded-xl p-4 border border-lime-500/20">
             <div className="flex items-center gap-2 mb-3">
               <Zap className="text-lime-400" size={18} />
-              <h3 className="text-sm font-bold text-lime-400">Projected Payouts</h3>
+              <h3 className="text-sm font-bold text-lime-400">Payout Distribution</h3>
             </div>
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
               <div className="bg-lime-500/5 rounded-lg p-2 border border-lime-500/20">
-                <div className="text-lime-400 font-bold">{winnerPayout} SOL</div>
-                <div className="text-gray-400">Winner (90%)</div>
+                <div className="text-lime-400 font-bold text-lg">90%</div>
+                <div className="text-gray-400">Winner</div>
               </div>
               <div className="bg-lime-500/5 rounded-lg p-2 border border-lime-500/20">
-                <div className="text-lime-400 font-bold">{platformFee} SOL</div>
-                <div className="text-gray-400">Platform (5%)</div>
+                <div className="text-lime-400 font-bold text-lg">5%</div>
+                <div className="text-gray-400">Platform</div>
               </div>
               <div className="bg-lime-500/5 rounded-lg p-2 border border-lime-500/20">
-                <div className="text-lime-400 font-bold">{rakeback} SOL</div>
-                <div className="text-gray-400">Rakeback (5%)</div>
+                <div className="text-lime-400 font-bold text-lg">5%</div>
+                <div className="text-gray-400">Rakeback</div>
               </div>
             </div>
           </div>
@@ -175,10 +205,6 @@ export default function PotCard() {
             <h3 className="text-sm font-bold text-lime-400">Game Info</h3>
           </div>
           <div className="space-y-2 text-xs">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Capacity:</span>
-              <span className="text-white font-semibold">{capacity.toFixed(2)} SOL</span>
-            </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Min Deposit:</span>
               <span className="text-white font-semibold">0.01 SOL</span>
@@ -208,3 +234,6 @@ export default function PotCard() {
     </div>
   );
 }
+
+
+// Replace the original capacity/progress UI with this:

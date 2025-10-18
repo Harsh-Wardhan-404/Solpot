@@ -23,10 +23,18 @@ export function usePot() {
     }
   }, [program]);
   
-  const vaultPda = potPda; // vault is the pot account itself now
+  const [vaultPda] = useMemo(() => {
+    if (!program?.programId) return [null];
+    try {
+      return web3.PublicKey.findProgramAddressSync([Buffer.from("vault")], program.programId);
+    } catch (error) {
+      console.error("Failed to find vault PDA:", error);
+      return [null];
+    }
+  }, [program]);
 
   useEffect(() => {
-    if (!program || !potPda) return;
+  if (!program || !potPda || !vaultPda) return;
     let sub: number | null = null;
     (async () => {
       try {

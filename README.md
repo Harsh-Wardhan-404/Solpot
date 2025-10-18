@@ -163,9 +163,17 @@ Frontend also attempts a light auto-finalize when users load the app; cron ensur
 
 ## 12) Quick FAQ
 
-- “I changed capacity to 2 SOL but UI still shows old state”
+- "I changed capacity to 2 SOL but UI still shows old state"
   - You must initialize a new pot (script) under the correct Program ID. The UI reads the current pot PDA for that program.
-- “How do I know the pot is full?”
+- "How do I know the pot is full?"
   - `node scripts/checkPot.js` → Status 1, `totalDeposited >= capacity`.
-- “How do I confirm payouts?”
+- "How do I confirm payouts?"
   - Run finalize, then re-check pot (Status 2), and compare winner/treasury balances before/after.
+
+## 13) TODO - Production Automation
+
+- [ ] **Vercel Cron API**: Create `/api/cron/finalize/route.ts` for automated pot finalization
+- [ ] **Environment Setup**: Add `CRON_SECRET`, `SOLANA_KEYPAIR` to Vercel env vars
+- [ ] **Vercel Cron Jobs**: Configure `vercel.json` with cron schedule (every 5 minutes)
+- [ ] **Security**: Implement rate limiting and error monitoring for cron endpoint
+- [ ] **Monitoring**: Add logging and alerting for failed finalizations

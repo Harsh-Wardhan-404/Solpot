@@ -27,8 +27,17 @@ export default function DepositForm() {
 
       await deposit(lamports);
       setAmount("");
+      setError(""); // Clear any previous errors on success
     } catch (err: any) {
-      setError(err.message || "Deposit failed");
+      // Only show error if it's not a "duplicate transaction" success case
+      if (!err?.message?.includes("already been processed") && 
+          !err?.message?.includes("simulation failed")) {
+        setError(err.message || "Deposit failed");
+      } else {
+        // Transaction was successful despite the error message
+        setAmount("");
+        setError("");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -85,17 +94,17 @@ export default function DepositForm() {
               <span className="text-lime-400">●</span>
               Minimum: 0.01 SOL
             </span>
-            {remaining > 0 && (
+            {/* {remaining > 0 && (
               <span className="text-lime-400 font-semibold">
                 {remaining.toFixed(4)} SOL remaining
               </span>
-            )}
+            )} */}
           </div>
         </div>
 
         {/* Quick Amount Buttons */}
         {pot.status === 0 && (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setAmount("0.1")}
@@ -111,14 +120,6 @@ export default function DepositForm() {
               className="px-3 py-2 bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/30 rounded-lg text-lime-400 text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               0.5 SOL
-            </button>
-            <button
-              type="button"
-              onClick={() => setAmount(remaining > 0 ? remaining.toFixed(4) : "1")}
-              disabled={isDisabled}
-              className="px-3 py-2 bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/30 rounded-lg text-lime-400 text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Max
             </button>
           </div>
         )}

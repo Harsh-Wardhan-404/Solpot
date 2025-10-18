@@ -3,7 +3,7 @@ import { Connection, clusterApiUrl, Keypair, Transaction, VersionedTransaction }
 import idl from "../anchor/IDL/universal_pot.json" assert { type: "json" };
 
 async function main() {
-  const PROGRAM_ID = new web3.PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID!);
+  const PROGRAM_ID = new web3.PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID || (idl as any).address || ((idl as any).metadata && (idl as any).metadata.address));
   const connection = new Connection(
     process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("devnet"),
     "processed"
@@ -34,8 +34,10 @@ async function main() {
     { preflightCommitment: "processed" }
   );
 
-  const program = new Program(idl as any, provider);
+  const patchedIdl = { ...(idl as any), metadata: { ...((idl as any).metadata||{}), address: PROGRAM_ID.toBase58() } } as any;
+  const program = new Program(patchedIdl as any, provider as any);
   const [potPda] = web3.PublicKey.findProgramAddressSync([Buffer.from("pot")], PROGRAM_ID);
+  const [vaultPda] = web3.PublicKey.findProgramAddressSync([Buffer.from("vault")], PROGRAM_ID);
 
   const capacityLamports = new BN(100 * 1e9);                 // 100 SOL
   const deadlineTs = new BN(Math.floor(Date.now() / 1000) + 24 * 60 * 60); // +24h
@@ -48,6 +50,7 @@ async function main() {
     .accounts({
       authority: payer.publicKey,
       pot: potPda,
+      vault: vaultPda,
       systemProgram: web3.SystemProgram.programId,
     })
     .rpc();
