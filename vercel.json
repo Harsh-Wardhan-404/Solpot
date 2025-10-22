@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/finalize",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+  "functions": {
+    "app/api/cron/finalize/route.ts": {
+      "maxDuration": 30
+    }
+  }
+}
