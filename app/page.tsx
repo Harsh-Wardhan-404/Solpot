@@ -5,7 +5,7 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import Dock from '@/components/Dock';
 import RotatingText from '@/components/RotatingText';
 import { Home, Coins, Trophy, Settings, Wallet, Timer } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, useInView } from 'motion/react';
 import PotCard from '@/components/PotCard';
 import DepositForm from '@/components/DepositForm';
@@ -18,6 +18,9 @@ const WalletMultiButton = dynamic(
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState<'home' | 'leaderboard' | 'wallet' | 'settings'>('home');
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
   
   // Refs for scroll animations
   const statsRef = useRef(null);
@@ -32,6 +35,28 @@ export default function HomePage() {
   const isWhyPlayInView = useInView(whyPlayRef, { once: true, amount: 0.3 });
   const isCtaInView = useInView(ctaRef, { once: true, amount: 0.5 });
   const isPotsInView = useInView(potsRef, { once: true, amount: 0.2 });
+
+  // Scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Determine if scrolled past threshold
+      setIsScrolled(currentScrollY > 100);
+      
+      // Determine scroll direction
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setScrollDirection('down');
+      } else if (currentScrollY < lastScrollY || currentScrollY <= 100) {
+        setScrollDirection('up');
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   const dockItems = [
     {
@@ -514,10 +539,30 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Dock Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 flex justify-center pointer-events-auto">
-        <Dock items={dockItems} />
-      </div>
+      {/* Dock Navigation - Animated based on scroll */}
+      <motion.div
+        initial={{ bottom: 0, right: 'auto', left: '50%', x: '-50%' }}
+        animate={{
+          bottom: scrollDirection === 'down' && isScrolled ? 'auto' : 0,
+          top: scrollDirection === 'down' && isScrolled ? '50%' : 'auto',
+          right: scrollDirection === 'down' && isScrolled ? '1.5rem' : 'auto',
+          left: scrollDirection === 'down' && isScrolled ? 'auto' : '50%',
+          x: scrollDirection === 'down' && isScrolled ? 0 : '-50%',
+          y: scrollDirection === 'down' && isScrolled ? '-50%' : 0,
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 30,
+          mass: 0.8
+        }}
+        className="fixed z-20 pointer-events-auto"
+      >
+        <Dock 
+          items={dockItems} 
+          isVertical={scrollDirection === 'down' && isScrolled}
+        />
+      </motion.div>
     </div>
   );
 }

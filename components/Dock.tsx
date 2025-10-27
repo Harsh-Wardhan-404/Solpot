@@ -29,6 +29,7 @@ export type DockProps = {
   dockHeight?: number;
   magnification?: number;
   spring?: SpringOptions;
+  isVertical?: boolean;
 };
 
 type DockItemProps = {
@@ -151,9 +152,11 @@ export default function Dock({
   distance = 200,
   panelHeight = 68,
   dockHeight = 256,
-  baseItemSize = 50
+  baseItemSize = 50,
+  isVertical = false
 }: DockProps) {
   const mouseX = useMotionValue(Infinity);
+  const mouseY = useMotionValue(Infinity);
   const isHovered = useMotionValue(0);
 
   const maxHeight = useMemo(
@@ -164,18 +167,31 @@ export default function Dock({
   const height = useSpring(heightRow, spring);
 
   return (
-    <motion.div style={{ height, scrollbarWidth: 'none' }} className="dock-outer">
+    <motion.div 
+      style={{ height: isVertical ? 'auto' : height, scrollbarWidth: 'none' }} 
+      className="dock-outer"
+    >
       <motion.div
-        onMouseMove={({ pageX }) => {
+        onMouseMove={({ pageX, pageY }) => {
           isHovered.set(1);
           mouseX.set(pageX);
+          mouseY.set(pageY);
         }}
         onMouseLeave={() => {
           isHovered.set(0);
           mouseX.set(Infinity);
+          mouseY.set(Infinity);
         }}
         className={`dock-panel ${className}`}
-        style={{ height: panelHeight }}
+        style={{ 
+          height: isVertical ? 'auto' : panelHeight,
+          flexDirection: isVertical ? 'column' : 'row',
+          width: isVertical ? 'fit-content' : 'auto',
+          position: isVertical ? 'relative' : 'absolute',
+          left: isVertical ? 'auto' : '50%',
+          transform: isVertical ? 'none' : 'translateX(-50%)',
+          bottom: isVertical ? 'auto' : '0.5rem',
+        }}
         role="toolbar"
         aria-label="Application dock"
       >
