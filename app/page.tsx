@@ -17,30 +17,27 @@ const WalletMultiButton = dynamic(
 );
 
 export default function HomePage() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'pots' | 'leaderboard' | 'wallet' | 'settings'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'leaderboard' | 'wallet' | 'settings'>('home');
   
   // Refs for scroll animations
   const statsRef = useRef(null);
   const howItWorksRef = useRef(null);
   const whyPlayRef = useRef(null);
   const ctaRef = useRef(null);
+  const potsRef = useRef(null);
   
   // InView hooks for scroll animations
   const isStatsInView = useInView(statsRef, { once: true, amount: 0.3 });
   const isHowItWorksInView = useInView(howItWorksRef, { once: true, amount: 0.2 });
   const isWhyPlayInView = useInView(whyPlayRef, { once: true, amount: 0.3 });
   const isCtaInView = useInView(ctaRef, { once: true, amount: 0.5 });
+  const isPotsInView = useInView(potsRef, { once: true, amount: 0.2 });
 
   const dockItems = [
     {
       icon: <Home size={24} className="text-lime-400" />,
       label: "Home",
       onClick: () => setCurrentPage('home')
-    },
-    {
-      icon: <Coins size={24} className="text-lime-400" />,
-      label: "Pots",
-      onClick: () => setCurrentPage('pots')
     },
     {
       icon: <Trophy size={24} className="text-lime-400" />,
@@ -126,12 +123,64 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
-                  className="inline-flex items-center gap-3 bg-black/40 border border-lime-500/30 px-6 py-3 rounded-lg backdrop-blur-sm"
+                  className="inline-flex items-center gap-3 bg-black/40 border border-lime-500/30 px-6 py-3 rounded-lg backdrop-blur-sm mb-8"
                 >
                   <div className="w-2 h-2 bg-lime-400 rounded-full animate-pulse"></div>
                   <span className="text-lime-400 font-semibold">100% On-Chain • Fully Transparent • Solana Devnet</span>
                 </motion.div>
+
+                {/* Scroll Indicator */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  onClick={() => {
+                    potsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="cursor-pointer flex flex-col items-center gap-2"
+                >
+                  <span className="text-lime-400 font-semibold animate-pulse">Scroll to Enter Pot ↓</span>
+                  <motion.div
+                    animate={{ y: [0, 10, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-6 h-10 border-2 border-lime-400 rounded-full flex items-start justify-center p-2"
+                  >
+                    <motion.div
+                      animate={{ y: [0, 12, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      className="w-1.5 h-1.5 bg-lime-400 rounded-full"
+                    />
+                  </motion.div>
+                </motion.div>
               </div>
+
+              {/* Active Pots Section - Moved to top, right after hero */}
+              <motion.div
+                ref={potsRef}
+                initial={{ opacity: 0, y: 50 }}
+                animate={isPotsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="mb-20"
+              >
+                <motion.div 
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={isPotsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="text-center mb-12"
+                >
+                  <h2 className="text-5xl font-bold text-lime-400 mb-3">Active Pots</h2>
+                  <p className="text-gray-300 text-lg">Make your deposit and win the pot!</p>
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={isPotsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto"
+                >
+                  <PotCard />
+                  <DepositForm />
+                </motion.div>
+              </motion.div>
 
               {/* Stats Row */}
               <motion.div
@@ -411,27 +460,20 @@ export default function HomePage() {
                   transition={{ duration: 0.6, delay: 0.4, type: "spring", stiffness: 200 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setCurrentPage('pots')}
+                  onClick={() => {
+                    // Scroll to pots section at the top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => {
+                      potsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 300);
+                  }}
                   className="bg-lime-500 hover:bg-lime-600 text-black font-bold text-xl px-12 py-4 rounded-xl transition-all duration-300 inline-flex items-center gap-3"
                 >
                   <Coins size={28} />
-                  Enter The Pot
-                  <span className="text-2xl">→</span>
+                  Back to Pots
+                  <span className="text-2xl">↑</span>
                 </motion.button>
               </motion.div>
-            </div>
-          )}
-
-          {currentPage === 'pots' && (
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-8">
-                <h2 className="text-4xl font-bold text-lime-400 mb-2">Active Pots</h2>
-                <p className="text-gray-300">Choose a pot and make your deposit</p>
-              </div>
-              <div className="grid md:grid-cols-2 gap-6">
-                <PotCard />
-                <DepositForm />
-              </div>
             </div>
           )}
 
