@@ -37,6 +37,11 @@ export default function DepositForm() {
       
       setAmount("");
       setError(""); // Clear any previous errors on success
+      
+      // Reload page after celebration animation (3 seconds)
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
     } catch (err: any) {
       // Only show error if it's not a "duplicate transaction" success case
       if (!err?.message?.includes("already been processed") && 
@@ -48,6 +53,11 @@ export default function DepositForm() {
         setShowCelebration(true);
         setAmount("");
         setError("");
+        
+        // Reload page after celebration animation (3 seconds)
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
       }
     } finally {
       setIsLoading(false);
