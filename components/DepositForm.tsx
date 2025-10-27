@@ -4,11 +4,15 @@ import { useState } from "react";
 import { useDeposit } from "./hooks/useDeposit";
 import { usePot } from "./hooks/usePot";
 import { Send, Loader2, AlertCircle, Info, Zap } from "lucide-react";
+import DepositCelebration from "./DepositCelebration";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function DepositForm() {
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationAmount, setCelebrationAmount] = useState(0);
   const { deposit } = useDeposit();
   const { pot } = usePot();
 
@@ -26,6 +30,11 @@ export default function DepositForm() {
       }
 
       await deposit(lamports);
+      
+      // Show celebration animation
+      setCelebrationAmount(parseFloat(amount));
+      setShowCelebration(true);
+      
       setAmount("");
       setError(""); // Clear any previous errors on success
     } catch (err: any) {
@@ -35,6 +44,8 @@ export default function DepositForm() {
         setError(err.message || "Deposit failed");
       } else {
         // Transaction was successful despite the error message
+        setCelebrationAmount(parseFloat(amount));
+        setShowCelebration(true);
         setAmount("");
         setError("");
       }
@@ -62,11 +73,27 @@ export default function DepositForm() {
   }
 
   return (
-    <div className="glass-panel p-6 ">
-      <h3 className="text-xl font-bold text-lime-400 mb-4 flex items-center gap-2">
-        <Send className="text-lime-400" size={24} />
-        Deposit SOL
-      </h3>
+    <>
+      {/* Celebration Animation */}
+      <DepositCelebration
+        show={showCelebration}
+        amount={celebrationAmount}
+        onComplete={() => setShowCelebration(false)}
+      />
+
+      <motion.div 
+        className="glass-panel p-6"
+        initial={{ opacity: 1 }}
+        animate={{ 
+          opacity: isLoading ? 0.7 : 1,
+          scale: isLoading ? 0.98 : 1
+        }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-xl font-bold text-lime-400 mb-4 flex items-center gap-2">
+          <Send className="text-lime-400" size={24} />
+          Deposit SOL
+        </h3>
       
       <form onSubmit={handleDeposit} className="space-y-4">
         {/* Amount Input */}
@@ -198,6 +225,7 @@ export default function DepositForm() {
           </div>
         </div>
       )}
-    </div>
+      </motion.div>
+    </>
   );
 }

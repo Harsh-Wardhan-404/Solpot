@@ -3,10 +3,13 @@
 import { usePot } from "./hooks/usePot";
 import { Timer, TrendingUp, Trophy, User, Shield, Zap, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 
 export default function PotCard() {
   const { pot, vaultBalance } = usePot();
   const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
+  const [previousDeposited, setPreviousDeposited] = useState(0);
+  const [shouldPulse, setShouldPulse] = useState(false);
 
   // Update time every second for countdown
   useEffect(() => {
@@ -16,6 +19,18 @@ export default function PotCard() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Detect deposit changes and trigger pulse animation
+  useEffect(() => {
+    if (pot) {
+      const currentDeposited = Number(pot.totalDeposited) / 1e9;
+      if (previousDeposited > 0 && currentDeposited > previousDeposited) {
+        setShouldPulse(true);
+        setTimeout(() => setShouldPulse(false), 1000);
+      }
+      setPreviousDeposited(currentDeposited);
+    }
+  }, [pot?.totalDeposited]);
 
   if (!pot) {
     return (
@@ -73,10 +88,28 @@ export default function PotCard() {
   const rakeback = (totalVaultSol * 0.05).toFixed(4);
 
   return (
-    <div className="glass-panel p-6 ">
+    <motion.div 
+      className="glass-panel p-6"
+      animate={{
+        scale: shouldPulse ? [1, 1.03, 1] : 1,
+        boxShadow: shouldPulse 
+          ? [
+              '0 0 20px rgba(132, 204, 22, 0.3)',
+              '0 0 40px rgba(132, 204, 22, 0.6)',
+              '0 0 20px rgba(132, 204, 22, 0.3)'
+            ]
+          : '0 0 20px rgba(132, 204, 22, 0.2)'
+      }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-lime-400 flex items-center gap-2">
-          <Trophy className="text-lime-400" size={28} />
+          <motion.div
+            animate={{ rotate: shouldPulse ? 360 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Trophy className="text-lime-400" size={28} />
+          </motion.div>
           Universal Pot
         </h2>
         <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusColor}`}>
@@ -97,9 +130,28 @@ export default function PotCard() {
           {/* Show total deposited only */}
           <div className="text-center">
             <p className="text-gray-300 text-sm mb-1">Total Deposited</p>
-            <p className="text-2xl font-mono text-white">
+            <motion.p 
+              className="text-2xl font-mono text-white"
+              key={pot.totalDeposited.toString()}
+              initial={{ scale: 1 }}
+              animate={{ 
+                scale: shouldPulse ? [1, 1.2, 1] : 1,
+                color: shouldPulse ? ['#ffffff', '#84cc16', '#ffffff'] : '#ffffff'
+              }}
+              transition={{ duration: 0.5 }}
+            >
               {(Number(pot.totalDeposited) / 1e9).toFixed(3)} SOL
-            </p>
+            </motion.p>
+            {shouldPulse && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: [0, 1, 0], y: -20 }}
+                transition={{ duration: 1 }}
+                className="text-lime-400 text-sm font-bold"
+              >
+                +{(Number(pot.totalDeposited) / 1e9 - previousDeposited).toFixed(3)} SOL
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -231,7 +283,7 @@ export default function PotCard() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
