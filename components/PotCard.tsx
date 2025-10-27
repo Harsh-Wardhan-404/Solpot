@@ -1,7 +1,7 @@
 "use client";
 
 import { usePot } from "./hooks/usePot";
-import { Timer, TrendingUp, Trophy, User, Shield, Zap, Clock } from "lucide-react";
+import { Timer, TrendingUp, Trophy, User, Shield, Zap, Clock, Coins } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 
@@ -118,40 +118,257 @@ export default function PotCard() {
       </div>
 
       <div className="space-y-6">
-        {/* Mystery Pot block (capacity hidden) */}
+        {/* Animated Pot Visualization */}
         <div className="space-y-4">
-          <div className="text-center">
-            <p className="text-sm text-purple-300 mb-1 font-semibold">Mystery Pot</p>
-            <p className="text-gray-300 text-sm">
-              Capacity is hidden for this round. Keep an eye on deposits and time left.
-            </p>
-          </div>
+          {/* Pot Container with liquid */}
+          <div className="relative">
+            {/* Floating coins animation */}
+            <div className="absolute inset-0 pointer-events-none">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute"
+                  initial={{ 
+                    x: `${20 + i * 15}%`,
+                    y: '100%',
+                    opacity: 0 
+                  }}
+                  animate={{
+                    y: ['-20%', '-40%', '-20%'],
+                    opacity: [0, 1, 0],
+                  }}
+                  transition={{
+                    duration: 3 + i * 0.5,
+                    repeat: Infinity,
+                    delay: i * 0.6,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Coins className="text-lime-400" size={16 + i * 2} />
+                </motion.div>
+              ))}
+            </div>
 
-          {/* Show total deposited only */}
-          <div className="text-center">
-            <p className="text-gray-300 text-sm mb-1">Total Deposited</p>
-            <motion.p 
-              className="text-2xl font-mono text-white"
-              key={pot.totalDeposited.toString()}
-              initial={{ scale: 1 }}
-              animate={{ 
-                scale: shouldPulse ? [1, 1.2, 1] : 1,
-                color: shouldPulse ? ['#ffffff', '#84cc16', '#ffffff'] : '#ffffff'
-              }}
-              transition={{ duration: 0.5 }}
-            >
-              {(Number(pot.totalDeposited) / 1e9).toFixed(3)} SOL
-            </motion.p>
+            {/* The Pot SVG */}
+            <div className="relative mx-auto w-48 h-48 flex items-center justify-center">
+              <svg viewBox="0 0 200 200" className="w-full h-full">
+                {/* Pot body */}
+                <defs>
+                  <linearGradient id="potGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#84cc16" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#84cc16" stopOpacity="0.1" />
+                  </linearGradient>
+                  <linearGradient id="liquidGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#84cc16" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#84cc16" stopOpacity="0.4" />
+                  </linearGradient>
+                </defs>
+                
+                {/* Pot outline */}
+                <path
+                  d="M 50 80 Q 50 60, 60 50 L 140 50 Q 150 60, 150 80 L 160 160 Q 160 170, 150 170 L 50 170 Q 40 170, 40 160 Z"
+                  fill="url(#potGradient)"
+                  stroke="#84cc16"
+                  strokeWidth="2"
+                  className="drop-shadow-lg"
+                />
+                
+                {/* Liquid inside pot - animated fill level */}
+                <motion.path
+                  d="M 50 170 Q 40 170, 40 160 L 45 120 Q 45 110, 55 110 L 145 110 Q 155 110, 155 120 L 160 160 Q 160 170, 150 170 Z"
+                  fill="url(#liquidGradient)"
+                  initial={{ scaleY: 0, originY: 1 }}
+                  animate={{ 
+                    scaleY: Math.min(progress * 1.5, 1),
+                    originY: 1
+                  }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                />
+                
+                {/* Liquid wave animation */}
+                <motion.ellipse
+                  cx="100"
+                  cy={170 - (Math.min(progress * 1.5, 1) * 60)}
+                  rx="50"
+                  ry="8"
+                  fill="#84cc16"
+                  fillOpacity="0.6"
+                  animate={{
+                    rx: [48, 52, 48],
+                    ry: [6, 10, 6],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Pot handles */}
+                <path
+                  d="M 45 70 Q 35 70, 35 80 Q 35 90, 45 90"
+                  fill="none"
+                  stroke="#84cc16"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 155 70 Q 165 70, 165 80 Q 165 90, 155 90"
+                  fill="none"
+                  stroke="#84cc16"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+                
+                {/* Sparkles on pot */}
+                {shouldPulse && (
+                  <>
+                    <motion.circle
+                      cx="70"
+                      cy="60"
+                      r="3"
+                      fill="#84cc16"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+                      transition={{ duration: 0.8 }}
+                    />
+                    <motion.circle
+                      cx="130"
+                      cy="65"
+                      r="3"
+                      fill="#84cc16"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                    />
+                  </>
+                )}
+              </svg>
+              
+              {/* Center amount display */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <motion.div
+                  className="text-center"
+                  animate={{
+                    scale: shouldPulse ? [1, 1.1, 1] : 1
+                  }}
+                >
+                  <p className="text-xs text-gray-400 mb-1">Total In Pot</p>
+                  <motion.p 
+                    className="text-2xl font-bold font-mono text-white drop-shadow-lg"
+                    key={pot.totalDeposited.toString()}
+                    animate={{ 
+                      scale: shouldPulse ? [1, 1.2, 1] : 1,
+                      color: shouldPulse ? ['#ffffff', '#84cc16', '#ffffff'] : '#ffffff'
+                    }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {(Number(pot.totalDeposited) / 1e9).toFixed(3)}
+                  </motion.p>
+                  <p className="text-xs font-semibold text-lime-400">SOL</p>
+                </motion.div>
+              </div>
+            </div>
+            
+            {/* Floating delta indicator */}
             {shouldPulse && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: [0, 1, 0], y: -20 }}
-                transition={{ duration: 1 }}
-                className="text-lime-400 text-sm font-bold"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: [0, 1, 0], y: -30 }}
+                transition={{ duration: 1.5 }}
+                className="absolute top-0 left-1/2 transform -translate-x-1/2 text-lime-400 font-bold flex items-center gap-1"
               >
-                +{(Number(pot.totalDeposited) / 1e9 - previousDeposited).toFixed(3)} SOL
+                <TrendingUp size={16} />
+                <span>+{(Number(pot.totalDeposited) / 1e9 - previousDeposited).toFixed(3)} SOL</span>
               </motion.div>
             )}
+          </div>
+
+          {/* Progress Bar */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-gray-400">Fill Progress</span>
+              <motion.span 
+                className="text-lime-400 font-bold"
+                animate={{
+                  scale: shouldPulse ? [1, 1.2, 1] : 1
+                }}
+              >
+                {(progress * 100).toFixed(1)}%
+              </motion.span>
+            </div>
+            
+            {/* Animated progress bar */}
+            <div className="relative h-4 bg-black/40 rounded-full overflow-hidden border border-lime-500/30">
+              {/* Background pattern */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="h-full w-full" style={{
+                  backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(132, 204, 22, 0.1) 10px, rgba(132, 204, 22, 0.1) 20px)'
+                }} />
+              </div>
+              
+              {/* Animated fill */}
+              <motion.div
+                className="h-full relative overflow-hidden"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(progress * 100, 100)}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
+              >
+                {/* Gradient fill */}
+                <div className="absolute inset-0 bg-gradient-to-r from-lime-500 via-lime-400 to-lime-500" />
+                
+                {/* Shine effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
+                  animate={{
+                    x: ['-100%', '200%']
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
+                
+                {/* Pulse effect on fill */}
+                {shouldPulse && (
+                  <motion.div
+                    className="absolute inset-0 bg-lime-400"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.5, 0] }}
+                    transition={{ duration: 0.5 }}
+                  />
+                )}
+              </motion.div>
+              
+              {/* Glowing edge */}
+              <motion.div
+                className="absolute top-0 bottom-0 w-1 bg-white shadow-lg shadow-lime-400"
+                initial={{ left: '0%' }}
+                animate={{
+                  left: `${Math.min(progress * 100, 100)}%`,
+                  opacity: [0.5, 1, 0.5],
+                  boxShadow: [
+                    '0 0 5px rgba(132, 204, 22, 0.5)',
+                    '0 0 15px rgba(132, 204, 22, 1)',
+                    '0 0 5px rgba(132, 204, 22, 0.5)'
+                  ]
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </div>
+            
+            {/* Milestone markers */}
+            <div className="flex justify-between items-center text-xs text-gray-500 px-1">
+              <span className={deposited >= capacity * 0.25 ? "text-lime-400" : ""}>25%</span>
+              <span className={deposited >= capacity * 0.5 ? "text-lime-400" : ""}>50%</span>
+              <span className={deposited >= capacity * 0.75 ? "text-lime-400" : ""}>75%</span>
+              <span className={deposited >= capacity ? "text-lime-400" : ""}>Full</span>
+            </div>
           </div>
         </div>
 
@@ -198,6 +415,79 @@ export default function PotCard() {
               ⚠️ Less than 5 minutes left!
             </p>
           )}
+        </div>
+
+        {/* Playful Stats Grid */}
+        <div className="grid grid-cols-3 gap-3">
+          {/* Pot Status */}
+          <motion.div 
+            className="bg-gradient-to-br from-lime-500/10 to-lime-600/5 rounded-xl p-3 border border-lime-500/30 text-center"
+            whileHover={{ scale: 1.05, borderColor: 'rgba(132, 204, 22, 0.5)' }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            <motion.div
+              animate={{ 
+                rotate: [0, 10, -10, 0],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                repeatDelay: 3
+              }}
+            >
+              <Trophy className="text-lime-400 mx-auto mb-1" size={24} />
+            </motion.div>
+            <p className="text-xs text-gray-400 mb-1">Prize Pool</p>
+            <p className="text-lg font-bold text-lime-400">{(totalVaultSol * 0.9).toFixed(2)}</p>
+            <p className="text-xs text-gray-500">SOL</p>
+          </motion.div>
+
+          {/* Participants */}
+          <motion.div 
+            className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-xl p-3 border border-purple-500/30 text-center"
+            whileHover={{ scale: 1.05, borderColor: 'rgba(168, 85, 247, 0.5)' }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            <motion.div
+              animate={{ 
+                y: [0, -5, 0]
+              }}
+              transition={{ 
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <User className="text-purple-400 mx-auto mb-1" size={24} />
+            </motion.div>
+            <p className="text-xs text-gray-400 mb-1">Status</p>
+            <p className="text-lg font-bold text-purple-400">{currentStatus}</p>
+            <p className="text-xs text-gray-500">Active</p>
+          </motion.div>
+
+          {/* Fill Level */}
+          <motion.div 
+            className="bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 rounded-xl p-3 border border-cyan-500/30 text-center"
+            whileHover={{ scale: 1.05, borderColor: 'rgba(6, 182, 212, 0.5)' }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            <motion.div
+              animate={{ 
+                rotate: 360
+              }}
+              transition={{ 
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            >
+              <Zap className="text-cyan-400 mx-auto mb-1" size={24} />
+            </motion.div>
+            <p className="text-xs text-gray-400 mb-1">Fill Level</p>
+            <p className="text-lg font-bold text-cyan-400">{(progress * 100).toFixed(0)}%</p>
+            <p className="text-xs text-gray-500">Capacity</p>
+          </motion.div>
         </div>
 
         {/* Last Depositor */}
