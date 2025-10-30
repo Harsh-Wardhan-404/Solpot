@@ -230,8 +230,8 @@ export default function HomePage() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="bg-black/40 border border-lime-500/20 rounded-xl p-6 text-center backdrop-blur-sm hover:border-lime-500/40 transition-all duration-300"
                 >
-                  <div className="text-4xl font-bold text-lime-400 mb-2">2 SOL</div>
-                  <div className="text-sm text-gray-400">Pot Capacity</div>
+                  <div className="text-4xl font-bold text-lime-400 mb-2">Mystery</div>
+                  <div className="text-sm text-gray-400">Randomized Capacity</div>
                 </motion.div>
                 <motion.div 
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
@@ -317,7 +317,7 @@ export default function HomePage() {
                       <ul className="space-y-2 text-gray-300 text-sm">
                         <li className="flex items-start gap-2">
                           <span className="text-lime-400 mt-1">→</span>
-                          <span>Pot reaches <strong className="text-white">2 SOL</strong> OR</span>
+                          <span>Pot reaches <strong className="text-white">hidden capacity</strong> OR</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-lime-400 mt-1">→</span>

@@ -51,7 +51,7 @@ export default function PotCard() {
 
   const capacity = Number(pot.capacityLamports) / 1e9; // Convert to SOL
   const deposited = Number(pot.totalDeposited) / 1e9; // Convert to SOL
-  const progress = Math.min(deposited / capacity, 1.0);
+  const progress = Math.min(deposited / Math.max(capacity, 1e-9), 1.0);
   const remaining = capacity - deposited;
 
   const deadline = Number(pot.deadlineTs);
@@ -173,13 +173,13 @@ export default function PotCard() {
                   className="drop-shadow-lg"
                 />
                 
-                {/* Liquid inside pot - animated fill level */}
+                {/* Liquid inside pot - generic animation (does not reveal capacity) */}
                 <motion.path
                   d="M 50 170 Q 40 170, 40 160 L 45 120 Q 45 110, 55 110 L 145 110 Q 155 110, 155 120 L 160 160 Q 160 170, 150 170 Z"
                   fill="url(#liquidGradient)"
-                  initial={{ scaleY: 0, originY: 1 }}
+                  initial={{ scaleY: 0.55, originY: 1 }}
                   animate={{ 
-                    scaleY: Math.min(progress * 1.5, 1),
+                    scaleY: shouldPulse ? [0.55, 0.65, 0.55] : 0.6,
                     originY: 1
                   }}
                   transition={{ duration: 1, ease: "easeOut" }}
@@ -188,20 +188,13 @@ export default function PotCard() {
                 {/* Liquid wave animation */}
                 <motion.ellipse
                   cx="100"
-                  cy={170 - (Math.min(progress * 1.5, 1) * 60)}
+                  cy={140}
                   rx="50"
                   ry="8"
                   fill="#84cc16"
                   fillOpacity="0.6"
-                  animate={{
-                    rx: [48, 52, 48],
-                    ry: [6, 10, 6],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  animate={{ rx: [48, 52, 48], ry: [6, 10, 6] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
                 
                 {/* Pot handles */}
@@ -284,92 +277,7 @@ export default function PotCard() {
             )}
           </div>
 
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-gray-400">Fill Progress</span>
-              <motion.span 
-                className="text-lime-400 font-bold"
-                animate={{
-                  scale: shouldPulse ? [1, 1.2, 1] : 1
-                }}
-              >
-                {(progress * 100).toFixed(1)}%
-              </motion.span>
-            </div>
-            
-            {/* Animated progress bar */}
-            <div className="relative h-4 bg-black/40 rounded-full overflow-hidden border border-lime-500/30">
-              {/* Background pattern */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="h-full w-full" style={{
-                  backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(132, 204, 22, 0.1) 10px, rgba(132, 204, 22, 0.1) 20px)'
-                }} />
-              </div>
-              
-              {/* Animated fill */}
-              <motion.div
-                className="h-full relative overflow-hidden"
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(progress * 100, 100)}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-              >
-                {/* Gradient fill */}
-                <div className="absolute inset-0 bg-gradient-to-r from-lime-500 via-lime-400 to-lime-500" />
-                
-                {/* Shine effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
-                  animate={{
-                    x: ['-100%', '200%']
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                />
-                
-                {/* Pulse effect on fill */}
-                {shouldPulse && (
-                  <motion.div
-                    className="absolute inset-0 bg-lime-400"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: [0, 0.5, 0] }}
-                    transition={{ duration: 0.5 }}
-                  />
-                )}
-              </motion.div>
-              
-              {/* Glowing edge */}
-              <motion.div
-                className="absolute top-0 bottom-0 w-1 bg-white shadow-lg shadow-lime-400"
-                initial={{ left: '0%' }}
-                animate={{
-                  left: `${Math.min(progress * 100, 100)}%`,
-                  opacity: [0.5, 1, 0.5],
-                  boxShadow: [
-                    '0 0 5px rgba(132, 204, 22, 0.5)',
-                    '0 0 15px rgba(132, 204, 22, 1)',
-                    '0 0 5px rgba(132, 204, 22, 0.5)'
-                  ]
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            </div>
-            
-            {/* Milestone markers */}
-            <div className="flex justify-between items-center text-xs text-gray-500 px-1">
-              <span className={deposited >= capacity * 0.25 ? "text-lime-400" : ""}>25%</span>
-              <span className={deposited >= capacity * 0.5 ? "text-lime-400" : ""}>50%</span>
-              <span className={deposited >= capacity * 0.75 ? "text-lime-400" : ""}>75%</span>
-              <span className={deposited >= capacity ? "text-lime-400" : ""}>Full</span>
-            </div>
-          </div>
+          {/* Progress Bar removed to avoid hinting capacity */}
         </div>
 
         {/* Time Left */}
@@ -418,7 +326,7 @@ export default function PotCard() {
         </div>
 
         {/* Playful Stats Grid */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {/* Pot Status */}
           <motion.div 
             className="bg-gradient-to-br from-lime-500/10 to-lime-600/5 rounded-xl p-3 border border-lime-500/30 text-center"
@@ -466,27 +374,21 @@ export default function PotCard() {
             <p className="text-xs text-gray-500">Active</p>
           </motion.div>
 
-          {/* Fill Level */}
+          {/* Cooldown (replaces Fill Level) */}
           <motion.div 
             className="bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 rounded-xl p-3 border border-cyan-500/30 text-center"
             whileHover={{ scale: 1.05, borderColor: 'rgba(6, 182, 212, 0.5)' }}
             transition={{ type: 'spring', stiffness: 300 }}
           >
             <motion.div
-              animate={{ 
-                rotate: 360
-              }}
-              transition={{ 
-                duration: 3,
-                repeat: Infinity,
-                ease: "linear"
-              }}
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <Zap className="text-cyan-400 mx-auto mb-1" size={24} />
+              <Clock className="text-cyan-400 mx-auto mb-1" size={24} />
             </motion.div>
-            <p className="text-xs text-gray-400 mb-1">Fill Level</p>
-            <p className="text-lg font-bold text-cyan-400">{(progress * 100).toFixed(0)}%</p>
-            <p className="text-xs text-gray-500">Capacity</p>
+            <p className="text-xs text-gray-400 mb-1">Cooldown</p>
+            <p className="text-lg font-bold text-cyan-400">{Number(pot.cooldownSecs)}s</p>
+            <p className="text-xs text-gray-500">Between deposits</p>
           </motion.div>
         </div>
 

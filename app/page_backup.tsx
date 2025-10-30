@@ -243,7 +243,7 @@ export default function HomePage() {
                       <ul className="space-y-2 text-gray-300 text-sm">
                         <li className="flex items-start gap-2">
                           <span className="text-lime-400 mt-1">→</span>
-                          <span>Pot reaches <strong className="text-white">2 SOL</strong> OR</span>
+                          <span>Pot reaches <strong className="text-white">capacity</strong> OR</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-lime-400 mt-1">→</span>
