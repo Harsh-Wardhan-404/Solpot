@@ -5,6 +5,7 @@ import { useDeposit } from "./hooks/useDeposit";
 import { usePot } from "./hooks/usePot";
 import { Send, Loader2, AlertCircle, Info, Zap } from "lucide-react";
 import DepositCelebration from "./DepositCelebration";
+import WinnerCelebration from "./WinnerCelebration";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function DepositForm() {
@@ -12,9 +13,11 @@ export default function DepositForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showWinner, setShowWinner] = useState(false);
   const [celebrationAmount, setCelebrationAmount] = useState(0);
+  const [winnerPrize, setWinnerPrize] = useState(0);
   const { deposit } = useDeposit();
-  const { pot } = usePot();
+  const { pot, vaultBalance } = usePot();
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,19 +32,39 @@ export default function DepositForm() {
         throw new Error("Minimum deposit is 0.01 SOL");
       }
 
+      // Check if this deposit will win (fill the pot or close to capacity)
+      const currentDeposited = pot ? Number(pot.totalDeposited) / 1e9 : 0;
+      const capacity = pot ? Number(pot.capacityLamports) / 1e9 : 2;
+      const newTotal = currentDeposited + parseFloat(amount);
+      const willWin = newTotal >= capacity * 0.95; // If deposit brings pot to 95%+ of capacity, they win!
+
       await deposit(lamports);
       
-      // Show celebration animation
       setCelebrationAmount(parseFloat(amount));
-      setShowCelebration(true);
+      
+      if (willWin) {
+        // Show winner celebration with pot cracking!
+        const totalVault = vaultBalance ? vaultBalance / 1e9 : newTotal;
+        const prize = totalVault * 0.9; // Winner gets 90%
+        setWinnerPrize(prize);
+        setShowWinner(true);
+        
+        // Reload after winner celebration (6 seconds)
+        setTimeout(() => {
+          window.location.reload();
+        }, 6000);
+      } else {
+        // Show normal celebration
+        setShowCelebration(true);
+        
+        // Reload after celebration (3 seconds)
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
       
       setAmount("");
-      setError(""); // Clear any previous errors on success
-      
-      // Reload page after celebration animation (3 seconds)
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
+      setError("");
     } catch (err: any) {
       // Only show error if it's not a "duplicate transaction" success case
       if (!err?.message?.includes("already been processed") && 
@@ -49,15 +72,30 @@ export default function DepositForm() {
         setError(err.message || "Deposit failed");
       } else {
         // Transaction was successful despite the error message
+        const currentDeposited = pot ? Number(pot.totalDeposited) / 1e9 : 0;
+        const capacity = pot ? Number(pot.capacityLamports) / 1e9 : 2;
+        const newTotal = currentDeposited + parseFloat(amount);
+        const willWin = newTotal >= capacity * 0.95;
+        
         setCelebrationAmount(parseFloat(amount));
-        setShowCelebration(true);
+        
+        if (willWin) {
+          const totalVault = vaultBalance ? vaultBalance / 1e9 : newTotal;
+          const prize = totalVault * 0.9;
+          setWinnerPrize(prize);
+          setShowWinner(true);
+          setTimeout(() => {
+            window.location.reload();
+          }, 6000);
+        } else {
+          setShowCelebration(true);
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
+        }
+        
         setAmount("");
         setError("");
-        
-        // Reload page after celebration animation (3 seconds)
-        setTimeout(() => {
-          window.location.reload();
-        }, 3000);
       }
     } finally {
       setIsLoading(false);
@@ -84,11 +122,19 @@ export default function DepositForm() {
 
   return (
     <>
-      {/* Celebration Animation */}
+      {/* Regular Celebration Animation */}
       <DepositCelebration
         show={showCelebration}
         amount={celebrationAmount}
         onComplete={() => setShowCelebration(false)}
+      />
+
+      {/* Winner Celebration Animation with Pot Cracking! */}
+      <WinnerCelebration
+        show={showWinner}
+        amount={celebrationAmount}
+        winnerAmount={winnerPrize}
+        onComplete={() => setShowWinner(false)}
       />
 
       <motion.div 
