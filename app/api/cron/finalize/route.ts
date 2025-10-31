@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AnchorProvider, Program, web3, BN } from '@coral-xyz/anchor';
 import { Connection, clusterApiUrl, Keypair, PublicKey } from '@solana/web3.js';
-import idl from '../../../anchor/IDL/universal_pot.json';
+import idl from '@/anchor/IDL/universal_pot.json';
 
 export async function GET(request: NextRequest) {
   // Verify cron secret for security
@@ -25,7 +25,9 @@ export async function GET(request: NextRequest) {
     };
 
     const provider = new AnchorProvider(connection, wallet, { preflightCommitment: 'confirmed' });
-    const program = new Program(idl as any, PROGRAM_ID, provider);
+    // Ensure IDL has the correct address for this Program constructor variant
+    const patchedIdl = { ...(idl as any), metadata: { ...((idl as any).metadata || {}), address: PROGRAM_ID.toBase58() } };
+    const program = new Program(patchedIdl as any, provider as any);
 
     const [potPda] = PublicKey.findProgramAddressSync([Buffer.from('pot')], PROGRAM_ID);
     const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from('vault')], PROGRAM_ID);
