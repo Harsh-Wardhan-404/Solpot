@@ -1,0 +1,17 @@
+name: Finalize Pot (Every 5 minutes)
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  run-finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call finalize endpoint
+        run: |
+          set -e
+          : "${{ secrets.CRON_URL }}" "${{ secrets.CRON_SECRET }}"
+          curl -sS -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "${{ secrets.CRON_URL }}" | tee /dev/stderr
+
