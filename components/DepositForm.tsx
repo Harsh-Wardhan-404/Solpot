@@ -105,6 +105,14 @@ export default function DepositForm() {
           Deposit SOL
         </h3>
       
+      {/* Devnet Notice */}
+      <div className="mb-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 flex items-center gap-2">
+        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+        <p className="text-xs text-yellow-400 font-medium">
+          ⚠️ This is <strong>Devnet</strong> - Use test SOL only
+        </p>
+      </div>
+
       <form onSubmit={handleDeposit} className="space-y-4">
         {/* Amount Input */}
         <div>

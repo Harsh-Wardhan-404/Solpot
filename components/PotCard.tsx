@@ -1,12 +1,14 @@
 "use client";
 
 import { usePot } from "./hooks/usePot";
-import { Timer, TrendingUp, Trophy, User, Shield, Zap, Clock, Coins } from "lucide-react";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { Timer, TrendingUp, Trophy, User, Shield, Zap, Clock, Coins, Wallet } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 
 export default function PotCard() {
-  const { pot, vaultBalance } = usePot();
+  const { pot, vaultBalance, program } = usePot();
+  const { connected } = useWallet();
   const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
   const [previousDeposited, setPreviousDeposited] = useState(0);
   const [shouldPulse, setShouldPulse] = useState(false);
@@ -32,9 +34,50 @@ export default function PotCard() {
     }
   }, [pot?.totalDeposited]);
 
+  // Show connect wallet message if not connected
+  if (!connected) {
+    return (
+      <div className="glass-panel p-6">
+        <div className="text-center py-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Wallet className="text-lime-400 mx-auto mb-4" size={48} />
+            <h3 className="text-2xl font-bold text-white mb-3">Connect Your Wallet</h3>
+            <p className="text-gray-300 mb-6">
+              Connect your Solana wallet to view the pot and start playing!
+            </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-lime-500/20 border border-lime-500/30 rounded-lg">
+              <div className="w-2 h-2 bg-lime-400 rounded-full animate-pulse"></div>
+              <span className="text-lime-400 text-sm font-medium">Click the Connect Wallet button above</span>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // If wallet connected but program not available, show error
+  if (!program) {
+    return (
+      <div className="glass-panel p-6">
+        <div className="text-center py-8">
+          <div className="text-red-400 mb-4">⚠️</div>
+          <h3 className="text-xl font-bold text-white mb-2">Unable to Load Program</h3>
+          <p className="text-gray-300 text-sm">
+            Please try refreshing the page or reconnecting your wallet.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state if wallet connected but pot data not loaded yet
   if (!pot) {
     return (
-      <div className="glass-panel p-6 ">
+      <div className="glass-panel p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lime-400 mx-auto mb-4"></div>
           <p className="text-gray-300">Loading pot data...</p>
