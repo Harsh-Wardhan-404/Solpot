@@ -170,10 +170,30 @@ Frontend also attempts a light auto-finalize when users load the app; cron ensur
 - "How do I confirm payouts?"
   - Run finalize, then re-check pot (Status 2), and compare winner/treasury balances before/after.
 
-## 13) TODO - Production Automation
+## 13) Production Automation
 
-- [ ] **Vercel Cron API**: Create `/api/cron/finalize/route.ts` for automated pot finalization
-- [ ] **Environment Setup**: Add `CRON_SECRET`, `SOLANA_KEYPAIR` to Vercel env vars
-- [ ] **Vercel Cron Jobs**: Configure `vercel.json` with cron schedule (every 5 minutes)
-- [ ] **Security**: Implement rate limiting and error monitoring for cron endpoint
-- [ ] **Monitoring**: Add logging and alerting for failed finalizations
+Automated pot finalization and reset is handled via **GitHub Actions** (not Vercel cron jobs) to avoid Vercel plan limits.
+
+### Setup
+
+1. **GitHub Secrets**: Add these to your repo's Settings → Secrets and variables → Actions:
+   - `CRON_URL`: Your Vercel deployment URL + `/api/cron/finalize` (e.g., `https://solpot.vercel.app/api/cron/finalize`)
+   - `CRON_SECRET`: Same value as your `CRON_SECRET` in Vercel env vars
+
+2. **Workflow**: Already configured in `.github/workflows/finalize-pot.yml`
+   - Runs every 5 minutes via GitHub Actions
+   - Calls your Vercel endpoint with authentication
+   - Free for public repositories
+
+### Why GitHub Actions Instead of Vercel Cron?
+
+- Vercel Hobby plan limits: 2 cron jobs max, 1 execution per day per cron
+- GitHub Actions: Unlimited runs, every 5 minutes, free for public repos
+- Better flexibility and control over scheduling
+
+### Manual Testing
+
+```bash
+curl -H "Authorization: Bearer YOUR_CRON_SECRET" \
+     https://your-app.vercel.app/api/cron/finalize
+```
