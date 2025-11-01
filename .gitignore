@@ -11,6 +11,7 @@
 !.yarn/versions
 
 anchor/target/
+target/
 
 # testing
 /coverage

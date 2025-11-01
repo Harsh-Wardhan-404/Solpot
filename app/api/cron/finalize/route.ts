@@ -27,12 +27,12 @@ export async function GET(request: NextRequest) {
     const provider = new AnchorProvider(connection, wallet, { preflightCommitment: 'confirmed' });
     // Ensure IDL has the correct address for this Program constructor variant
     const patchedIdl = { ...(idl as any), metadata: { ...((idl as any).metadata || {}), address: PROGRAM_ID.toBase58() } };
-    const program = new Program(patchedIdl as any, provider as any);
+    const program = new Program(patchedIdl as any, provider);
 
     const [potPda] = PublicKey.findProgramAddressSync([Buffer.from('pot')], PROGRAM_ID);
     const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from('vault')], PROGRAM_ID);
     
-    const pot = await program.account.pot.fetch(potPda);
+    const pot = await (program.account as any).pot.fetch(potPda);
     
     // Check if pot needs finalization
     if (pot.status === 2) {
