@@ -43,11 +43,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Ensure settled and empty vault
-  if (pot.status !== 2) {
-    console.error("Pot is not Settled. Finalize first before resetting.");
-    process.exit(1);
-  }
+  // Ensure vault is empty (status can be anything)
   const info = await connection.getAccountInfo(vaultPda);
   const vaultLamports = info?.lamports || 0;
   if (vaultLamports !== 0) {

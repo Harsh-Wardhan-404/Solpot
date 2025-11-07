@@ -133,19 +133,26 @@ pub mod universal_pot {
             .and_then(|v| v.checked_sub(rakeback))
             .ok_or(PotError::Underflow)?;
 
-        // Payout winner from vault PDA
+        // Determine recipient: if winner isn't system-owned, route to platform treasury
+        let recipient_info = if ctx.accounts.winner.owner == &anchor_lang::solana_program::system_program::ID {
+            ctx.accounts.winner.to_account_info()
+        } else {
+            ctx.accounts.platform_treasury.to_account_info()
+        };
+
+        // Payout from vault PDA to recipient
         {
             let seeds: &[&[u8]] = &[b"vault", &[ctx.accounts.pot.vault_bump]];
             let ix = anchor_lang::solana_program::system_instruction::transfer(
                 &ctx.accounts.vault.key(),
-                &ctx.accounts.winner.key(),
+                &recipient_info.key(),
                 winner_payout,
             );
             anchor_lang::solana_program::program::invoke_signed(
                 &ix,
                 &[
                     ctx.accounts.vault.to_account_info(),
-                    ctx.accounts.winner.to_account_info(),
+                    recipient_info,
                     ctx.accounts.system_program.to_account_info(),
                 ],
                 &[seeds],
@@ -198,9 +205,8 @@ pub mod universal_pot {
             pot.authority == ctx.accounts.authority.key(),
             PotError::Unauthorized
         );
-        // Only allow reset after settlement
-        require!(pot.status == Status::Settled as u8, PotError::Closed);
-        // Ensure vault is empty to avoid mixing funds
+        // Allow reset whenever the vault is empty (even if status wasn't formally Settled)
+        // This unblocks rounds where no deposits happened or finalize could not run.
         let vault_balance = ctx.accounts.vault.to_account_info().lamports();
         require!(vault_balance == 0, PotError::VaultNotEmpty);
 
@@ -263,9 +269,9 @@ pub struct Finalize<'info> {
     /// CHECK: vault holds SOL (system-owned)
     #[account(mut, seeds = [b"vault"], bump = pot.vault_bump)]
     pub vault: SystemAccount<'info>,
-    /// CHECK: winner account = pot.last_depositor
-    #[account(mut, address = pot.last_depositor)]
-    pub winner: SystemAccount<'info>,
+    /// CHECK: winner account = pot.last_depositor (can be any owner, e.g. PDA)
+    #[account(address = pot.last_depositor)]
+    pub winner: UncheckedAccount<'info>,
     /// CHECK: platform treasury
     #[account(mut)]
     pub platform_treasury: SystemAccount<'info>,

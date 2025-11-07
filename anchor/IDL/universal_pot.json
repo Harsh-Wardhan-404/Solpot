@@ -149,8 +149,7 @@
           }
         },
         {
-          "name": "winner",
-          "writable": true
+          "name": "winner"
         },
         {
           "name": "platform_treasury",

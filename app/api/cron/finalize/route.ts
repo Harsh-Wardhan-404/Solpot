@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     const [vaultPda] = PublicKey.findProgramAddressSync([Buffer.from('vault')], PROGRAM_ID);
     
     const pot = await (program.account as any).pot.fetch(potPda);
+    const vaultLamports = await connection.getBalance(vaultPda);
     
     // Check if pot needs finalization
     if (pot.status === 2) {
@@ -69,7 +70,29 @@ export async function GET(request: NextRequest) {
         message: 'Pot reset for next round'
       });
     } 
-    else if (pot.status === 1 || (pot.status === 0 && pot.deadlineTs.toNumber() <= Math.floor(Date.now() / 1000))) {
+    else if (
+      (pot.status === 1 || (pot.status === 0 && pot.deadlineTs.toNumber() <= Math.floor(Date.now() / 1000)))
+    ) {
+      // If vault is empty or no deposits happened, skip finalize and reset directly
+      if (vaultLamports === 0 || pot.totalDeposited.toNumber() === 0) {
+        const capacityLamports = (() => {
+          const min = Number(process.env.MYSTERY_MIN_CAP_SOL ?? 1);
+          const max = Number(process.env.MYSTERY_MAX_CAP_SOL ?? 5);
+          const step = Number(process.env.MYSTERY_STEP_SOL ?? 0.1);
+          const steps = Math.max(1, Math.floor((max - min) / step + 0.0000001));
+          const k = Math.floor(Math.random() * (steps + 1));
+          const capSol = Number((min + k * step).toFixed(6));
+          return new BN(Math.floor(capSol * 1e9));
+        })();
+        const deadlineTs = new BN(Math.floor(Date.now() / 1000) + 24 * 60 * 60);
+        const feeBps = 500;
+        const cooldownSecs = 5;
+        const sig = await program.methods
+          .resetPot(capacityLamports, deadlineTs, feeBps, cooldownSecs)
+          .accounts({ authority: payer.publicKey, pot: potPda, vault: vaultPda })
+          .rpc();
+        return NextResponse.json({ success: true, action: 'reset', reason: 'empty vault', tx: sig });
+      }
       console.log('Finalizing pot...');
       
       const winner = pot.lastDepositor;
